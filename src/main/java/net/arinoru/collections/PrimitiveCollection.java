@@ -6,6 +6,36 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
+/**
+ * <p>A base type for primitive specializations of {@code Collection}. Specialized
+ * subtypes are provided for {@code int}, {@code long} and {@code double}
+ * values.</p>
+ * <p>The specialized subtype default implementations for various
+ * {@code Collection} methods rely on boxing and unboxing primitive values to and
+ * from instances of their corresponding wrapper class. Such boxing may offset any
+ * advantages gained when using the primitive specializations. To avoid boxing and
+ * unboxing, the corresponding primitive-based methods should be used. For example,
+ * {@link OfInt#containsInt(int)} and {@link OfInt#removeInt(int)} should be used
+ * in favor of {@link OfInt#contains(Object)} and {@link OfInt#remove(Object)}.</p>
+ * @param <T> the boxed type of elements contained within this
+ *           {@code PrimitiveCollection}. The type must be a wrapper type for a
+ *           primitive type, such as {@code Integer} for the primitive {@code int}
+ *           type.
+ * @param <T_ARR> the type of arrays who have the collection's primitive element
+ *              type as their runtime component type.
+ * @param <T_CONS> the type of primitive consumer. The type must be a primitive
+ *                specialization of {@link Consumer} for {@code T}, such as
+ *                {@link IntConsumer} for {@code Integer}.
+ * @param <T_PRED> the type of primitive predicate. The type must be a primitive
+ *                specialization of {@link Predicate} for {@code T}, such as
+ *                {@link IntPredicate} for {@code Integer}.
+ * @param <T_SPLITR> the type of primitive spliterator. The type must be a
+ *                  primitive specialization of {@link Spliterator} for {@code T},
+ *                  such as {@link Spliterator.OfInt} for {@code Integer}.
+ * @param <T_STR> the type of primitive stream. The type must be a primitive
+ *               specialization of {@link BaseStream} for {@code T}, such as
+ *               {@link IntStream} for {@code Integer}.
+ */
 @PrereleaseContent
 public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         T_SPLITR extends Spliterator.OfPrimitive<T,T_CONS,T_SPLITR>,
@@ -389,7 +419,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * containing all of the elements in this collection
      */
     default Object[] toArray() {
-        return AbstractPrimitiveCollection.toArray(this);
+        return PrimitiveCollections.toArray(this);
     }
 
     /**
@@ -435,7 +465,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * exceeds the maximum capacity of a Java array)
      */
     default <U> U[] toArray(U[] a) {
-        return AbstractPrimitiveCollection.toArray(this, a);
+        return PrimitiveCollections.toArray(this, a);
     }
 
     /**
@@ -451,6 +481,9 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      */
     T_ARR toPrimitiveArray();
 
+    /**
+     * <p>A Collection specialized for {@code double} values.</p>
+     */
     @PrereleaseContent
     interface OfDouble extends PrimitiveCollection<Double,double[],DoubleConsumer,
             DoublePredicate,Spliterator.OfDouble,DoubleStream> {
@@ -968,7 +1001,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an array containing all of the elements in this collection
          */
         default double[] toPrimitiveArray() {
-            return AbstractPrimitiveCollection.OfDouble.toPrimitiveArray(this);
+            return PrimitiveCollections.toPrimitiveArray(this);
         }
 
         /**
@@ -984,6 +1017,9 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         }
     }
 
+    /**
+     * <p>A Collection specialized for {@code int} values.</p>
+     */
     @PrereleaseContent
     interface OfInt extends PrimitiveCollection<Integer,int[],IntConsumer,
             IntPredicate,Spliterator.OfInt,IntStream> {
@@ -1500,7 +1536,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an array containing all of the elements in this collection
          */
         default int[] toPrimitiveArray() {
-            return AbstractPrimitiveCollection.OfInt.toPrimitiveArray(this);
+            return PrimitiveCollections.toPrimitiveArray(this);
         }
 
         /**
@@ -1516,6 +1552,9 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         }
     }
 
+    /**
+     * <p>A Collection specialized for {@code long} values.</p>
+     */
     @PrereleaseContent
     interface OfLong extends PrimitiveCollection<Long,long[],LongConsumer,
             LongPredicate,Spliterator.OfLong,LongStream> {
@@ -2032,7 +2071,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an array containing all of the elements in this collection
          */
         default long[] toPrimitiveArray() {
-            return AbstractPrimitiveCollection.OfLong.toPrimitiveArray(this);
+            return PrimitiveCollections.toPrimitiveArray(this);
         }
 
         /**
