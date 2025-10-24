@@ -338,8 +338,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * specified collection (optional operation). In other words, removes from
      * this collection all of its elements that are not contained in the
      * specified collection.</p>
-     * @implSpec <p>The default implementation is equivalent to
-     * {@code removeIf(t -> !c.contains(t))}.</p>
      * @param c collection containing elements to be retained in this collection
      * @return {@code true} if this collection changed as a result of the call
      * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -349,9 +347,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * @throws NullPointerException if the specified collection is null
      * @see #contains(Object)
      */
-    default boolean retainAll(Collection<?> c) {
-        return removeIf(t -> !c.contains(t));
-    }
+    boolean retainAll(Collection<?> c);
 
     /**
      * Returns the number of elements in this collection. If this collection
@@ -925,7 +921,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfDouble ofDouble)
                 return retainAll(ofDouble);
-            return PrimitiveCollection.super.retainAll(c);
+            return removeIf(((DoublePredicate) c::contains).negate());
         }
 
         /**
@@ -1460,7 +1456,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfInt ofInt)
                 return retainAll(ofInt);
-            return PrimitiveCollection.super.retainAll(c);
+            return removeIf(((IntPredicate) c::contains).negate());
         }
 
         /**
@@ -1995,7 +1991,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfLong ofLong)
                 return retainAll(ofLong);
-            return PrimitiveCollection.super.retainAll(c);
+            return removeIf(((LongPredicate) c::contains).negate());
         }
 
         /**
