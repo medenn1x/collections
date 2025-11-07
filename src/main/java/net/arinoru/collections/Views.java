@@ -30,21 +30,6 @@ class Views {
                 new UnmodifiableIteratorView<>(forwarder);
     }
 
-    static <E> Iterator<E> iteratorView(
-            Iterator<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Iterator<?>,Iterator<E>>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableIteratorView<>(forwarder) :
-                    new UnmodifiableIteratorView<>(forwarder);
-            case Serializable ignored -> new SerializableIteratorView<>(forwarder);
-            default -> new IteratorView<>(forwarder);
-        };
-    }
-
     static PrimitiveIterator.OfDouble unmodifiableDoubleIteratorView(
             PrimitiveIterator.OfDouble delegate) {
         if (delegate instanceof UnmodifiableView)
@@ -54,21 +39,6 @@ class Views {
         return delegate instanceof Serializable ?
                 new SerializableUnmodifiableDoubleIteratorView(forwarder) :
                 new UnmodifiableDoubleIteratorView(forwarder);
-    }
-
-    static PrimitiveIterator.OfDouble doubleIteratorView(
-            Iterator<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfDouble>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableDoubleIteratorView(forwarder) :
-                    new UnmodifiableDoubleIteratorView(forwarder);
-            case Serializable ignored -> new SerializableDoubleIteratorView(forwarder);
-            default -> new DoubleIteratorView(forwarder);
-        };
     }
 
     static PrimitiveIterator.OfInt unmodifiableIntIteratorView(
@@ -82,21 +52,6 @@ class Views {
                 new UnmodifiableIntIteratorView(forwarder);
     }
 
-    static PrimitiveIterator.OfInt intIteratorView(
-            Iterator<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfInt>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableIntIteratorView(forwarder) :
-                    new UnmodifiableIntIteratorView(forwarder);
-            case Serializable ignored -> new SerializableIntIteratorView(forwarder);
-            default -> new IntIteratorView(forwarder);
-        };
-    }
-
     static PrimitiveIterator.OfLong unmodifiableLongIteratorView(
             PrimitiveIterator.OfLong delegate) {
         if (delegate instanceof UnmodifiableView)
@@ -108,21 +63,6 @@ class Views {
                 new UnmodifiableLongIteratorView(forwarder);
     }
 
-    static PrimitiveIterator.OfLong longIteratorView(
-            Iterator<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfLong>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableLongIteratorView(forwarder) :
-                    new UnmodifiableLongIteratorView(forwarder);
-            case Serializable ignored -> new SerializableLongIteratorView(forwarder);
-            default -> new LongIteratorView(forwarder);
-        };
-    }
-
     static <E> Collection<E> unmodifiableCollectionView(Collection<E> delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
@@ -131,21 +71,6 @@ class Views {
         return delegate instanceof Serializable ?
                 new SerializableUnmodifiableCollectionView<>(forwarder) :
                 new UnmodifiableCollectionView<>(forwarder);
-    }
-
-    static <E> Collection<E> collectionView(
-            Collection<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Collection<?>,Collection<E>>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableCollectionView<>(forwarder) :
-                    new UnmodifiableCollectionView<>(forwarder);
-            case Serializable ignored -> new SerializableCollectionView<>(forwarder);
-            default -> new CollectionView<>(forwarder);
-        };
     }
 
     static PrimitiveCollection.OfDouble unmodifiableDoubleCollectionView(
@@ -159,21 +84,6 @@ class Views {
                 new UnmodifiableDoubleCollectionView(forwarder);
     }
 
-    static PrimitiveCollection.OfDouble doubleCollectionView(
-            Collection<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfDouble>(
-                delegate, forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof  Serializable ?
-                    new SerializableUnmodifiableDoubleCollectionView(forwarder) :
-                    new UnmodifiableDoubleCollectionView(forwarder);
-            case Serializable ignored -> new SerializableDoubleCollectionView(forwarder);
-            default -> new DoubleCollectionView(forwarder);
-        };
-    }
-
     static PrimitiveCollection.OfInt unmodifiableIntCollectionView(
             PrimitiveCollection.OfInt delegate) {
         if (delegate instanceof UnmodifiableView)
@@ -183,21 +93,6 @@ class Views {
         return delegate instanceof Serializable ?
                 new SerializableUnmodifiableIntCollectionView(forwarder) :
                 new UnmodifiableIntCollectionView(forwarder);
-    }
-
-    static PrimitiveCollection.OfInt intCollectionView(
-            Collection<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfInt>(
-                delegate, forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableIntCollectionView(forwarder) :
-                    new UnmodifiableIntCollectionView(forwarder);
-            case Serializable ignored -> new SerializableIntCollectionView(forwarder);
-            default -> new IntCollectionView(forwarder);
-        };
     }
 
     static PrimitiveCollection.OfLong unmodifiableLongCollectionView(
@@ -211,21 +106,6 @@ class Views {
                 new UnmodifiableLongCollectionView(forwarder);
     }
 
-    static PrimitiveCollection.OfLong longCollectionView(
-            Collection<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfLong>(
-                delegate, forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableLongCollectionView(forwarder) :
-                    new UnmodifiableLongCollectionView(forwarder);
-            case Serializable ignored -> new SerializableLongCollectionView(forwarder);
-            default -> new LongCollectionView(forwarder);
-        };
-    }
-
     static PrimitiveSet.OfDouble unmodifiableDoubleSetView(
             PrimitiveSet.OfDouble delegate) {
         if (delegate instanceof UnmodifiableView)
@@ -235,21 +115,6 @@ class Views {
         return delegate instanceof Serializable ?
                 new SerializableUnmodifiableDoubleSetView(forwarder) :
                 new UnmodifiableDoubleSetView(forwarder);
-    }
-
-    static PrimitiveSet.OfDouble doubleSetView(
-            Set<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfDouble>(
-                delegate, forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableDoubleSetView(forwarder) :
-                    new UnmodifiableDoubleSetView(forwarder);
-            case Serializable ignored -> new SerializableDoubleSetView(forwarder);
-            default -> new DoubleSetView(forwarder);
-        };
     }
 
     static PrimitiveSet.OfInt unmodifiableIntSetView(PrimitiveSet.OfInt delegate) {
@@ -262,21 +127,6 @@ class Views {
                 new UnmodifiableIntSetView(forwarder);
     }
 
-    static PrimitiveSet.OfInt intSetView(
-            Set<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfInt>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableIntSetView(forwarder) :
-                    new UnmodifiableIntSetView(forwarder);
-            case Serializable ignored -> new SerializableIntSetView(forwarder);
-            default -> new IntSetView(forwarder);
-        };
-    }
-
     static PrimitiveSet.OfLong unmodifiableLongSetView(PrimitiveSet.OfLong delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
@@ -285,21 +135,6 @@ class Views {
         return delegate instanceof Serializable ?
                 new SerializableUnmodifiableLongSetView(forwarder) :
                 new UnmodifiableLongSetView(forwarder);
-    }
-
-    static PrimitiveSet.OfLong longSetView(
-            Set<?> delegate,
-            ForwardingType forwardingType,
-            MaskingType maskingType) {
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfLong>(delegate,
-                forwardingType, maskingType);
-        return switch (delegate) {
-            case UnmodifiableView ignored -> delegate instanceof Serializable ?
-                    new SerializableUnmodifiableLongSetView(forwarder) :
-                    new UnmodifiableLongSetView(forwarder);
-            case Serializable ignored -> new SerializableLongSetView(forwarder);
-            default -> new LongSetView(forwarder);
-        };
     }
 
     @PrereleaseContent
@@ -345,13 +180,6 @@ class Views {
          * unmodifiable, it will be assumed be mutable.
          */
         DELEGATE
-    }
-
-    @PrereleaseContent
-    @FunctionalInterface
-    interface ViewFactory<DELEGATE> {
-        Object newInstance(DELEGATE delegate, ForwardingType forwardingType,
-                           MaskingType maskingType);
     }
 
     @PrereleaseContent
