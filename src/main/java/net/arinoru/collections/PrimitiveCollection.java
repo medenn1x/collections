@@ -35,11 +35,20 @@ import java.util.stream.*;
  * @param <T_STR> the type of primitive stream. The type must be a primitive
  *               specialization of {@link BaseStream} for {@code T}, such as
  *               {@link IntStream} for {@code Integer}.
+ * @param <T_COLL> the type of the collection. This should be the specific
+ *                specialization collection type for {@code T}, such as
+ *                {@link OfInt} for {@code Integer}. More specific collection
+ *                types like sets or lists will use the underlying collection
+ *                interface type here for the sake of supporting generic
+ *                operations on collections, such as creating a set copy of a
+ *                collection, or confirming set membership of elements in a
+ *                collection.
  */
 @PrereleaseContent
 public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         T_SPLITR extends Spliterator.OfPrimitive<T,T_CONS,T_SPLITR>,
-        T_STR extends BaseStream<?,?>>
+        T_STR extends BaseStream<T,T_STR>,
+        T_COLL extends PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,T_SPLITR,T_STR,T_COLL>>
         extends Collection<T> {
     /**
      * <p>Ensures that this collection contains the specified element (optional
@@ -82,10 +91,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * if the specified collection contains any elements not present in this
      * collection that cannot be added to this collection, an exception must be
      * thrown.</p>
-     * @implSpec <p>The default implementation iterates over all elements of the
-     * specified collection, calling {@code add} with each element, and returns
-     * {@code false} only if each invocation of the operation returns
-     * {@code false}.</p>
      * @param c collection containing elements to be added to this collection
      * @return {@code true} if this collection changed as a result of the call
      * @throws UnsupportedOperationException if the {@code addAll} operation is
@@ -98,14 +103,35 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * specified collection prevents it from being added to this collection
      * @throws IllegalStateException if not all the elements can be added at
      * this time due to insertion restrictions
-     * @see #add(Object)
+     * @see #add(Object) add(T)
      */
-    default boolean addAll(Collection<? extends T> c) {
-        var changed = false;
-        for (T t : c)
-            changed |= add(t);
-        return changed;
-    }
+    boolean addAll(Collection<? extends T> c);
+
+    /**
+     * <p>Adds all of the elements in the specified collection to this collection
+     * (optional operation). The behavior of this operation is undefined if the
+     * specified collection is modified while the operation is in progress. (This
+     * implies that the behavior of this call is undefined if the specified
+     * collection is this collection, and this collection is nonempty.) If the
+     * specified collection has a defined encounter order, processing of its
+     * elements generally occurs in that order.</p>
+     * <p>Optionally, an implementation may return {@code false} when the
+     * specified collection contains no elements not already present in this
+     * collection, even if the operation would otherwise be unsupported; however,
+     * if the specified collection contains any elements not present in this
+     * collection that cannot be added to this collection, an exception must be
+     * thrown.</p>
+     * @param c collection containing elements to be added to this collection
+     * @return {@code true} if this collection changed as a result of the call
+     * @throws UnsupportedOperationException if the {@code addAll} operation is
+     * not supported by this collection
+     * @throws NullPointerException if the specified collection is null
+     * @throws IllegalArgumentException if some property of an element of the
+     * specified collection prevents it from being added to this collection
+     * @throws IllegalStateException if not all the elements can be added at
+     * this time due to insertion restrictions
+     */
+    boolean addAll(T_COLL c);
 
     /**
      * <p>Removes all of the elements from this collection (optional operation).
@@ -139,8 +165,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
     /**
      * <p>Returns {@code true} if this collection contains all of the elements in
      * the specified collection.</p>
-     * <p>The default implementation is equivalent to
-     * {@code c.stream().allMatch(this::contains)}.</p>
      * @param c collection to be checked for containment in this collection
      * @return {@code true} if this collection contains all elements in the
      * specified collection
@@ -149,10 +173,20 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * @throws NullPointerException if the specified collection contains one or
      * more null elements (optional) or if the specified collection is null.
      * @see #contains(Object)
+     * @see #containsAll(PrimitiveCollection)
      */
-    default boolean containsAll(Collection<?> c) {
-        return c.stream().allMatch(this::contains);
-    }
+    boolean containsAll(Collection<?> c);
+
+    /**
+     * <p>Returns {@code true} if this collection contains all of the elements in
+     * the specified collection.</p>
+     * @param c collection to be checked for containment in this collection
+     * @return {@code true} if this collection contains all elements in the
+     * specified collection
+     * @throws NullPointerException if the specified collection is null.
+     * @see #containsAll(Collection)
+     */
+    boolean containsAll(T_COLL c);
 
     /**
      * <p>Compares the specified object with this collection for equality.</p>
@@ -185,6 +219,46 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * @see Collection#equals(Object)
      */
     boolean equals(Object o);
+
+    /**
+     * <p>Performs the given action for each element of the collection
+     * until all elements have been processed or the action throws an exception.
+     * Actions are performed in the order of iteration, if that order is
+     * specified. Exceptions thrown by the action are relayed to the caller.</p>
+     * <p>The behavior of this method is unspecified if the action performs
+     * side-effects that modify the underlying source of elements, unless an
+     * overriding class has specified a concurrent modification policy.</p>
+     * @implSpec <p>The default implementation obtains a spliterator for
+     * the collection and passes the specified action to the
+     * {@link Spliterator#forEachRemaining(Consumer)} method.</p>
+     * @param action action to perform on each element of the collection
+     * @throws NullPointerException if the specified action is null
+     * @see #forEach(Object) forEach(T_CONS)
+     * @see Spliterator#forEachRemaining(Consumer)
+     */
+    default void forEach(Consumer<? super T> action) {
+        spliterator().forEachRemaining(action);
+    }
+
+    /**
+     * <p>Performs the given action for each element of the collection
+     * until all elements have been processed or the action throws an exception.
+     * Actions are performed in the order of iteration, if that order is
+     * specified. Exceptions thrown by the action are relayed to the caller.</p>
+     * <p>The behavior of this method is unspecified if the action performs
+     * side-effects that modify the underlying source of elements, unless an
+     * overriding class has specified a concurrent modification policy.</p>
+     * @implSpec <p>The default implementation obtains a spliterator for
+     * the collection and passes the specified action to the
+     * {@link Spliterator.OfPrimitive#forEachRemaining(Object) forEachRemaining(T_CONS)} method.</p>
+     * @param action action to perform on each element of the collection
+     * @throws NullPointerException if the specified action is null
+     * @see #forEach(Consumer)
+     * @see Spliterator.OfPrimitive#forEachRemaining(Object) forEachRemaining(T_CONS)
+     */
+    default void forEach(T_CONS action) {
+        spliterator().forEachRemaining(action);
+    }
 
     /**
      * <p>Returns the hash code value for this collection. While the
@@ -302,6 +376,25 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
     boolean removeAll(Collection<?> c);
 
     /**
+     * <p>Removes all of this collection's elements that are also contained in the
+     * specified collection (optional operation). After this call returns, this
+     * collection will contain no elements in common with the specified
+     * collection.</p>
+     * <p>Implementations may optionally return {@code false} when this collection
+     * contains no elements in common with the specified collection, even if the
+     * operation would otherwise be unsupported; however, if any element present in
+     * the specified collection cannot be removed from this collection, an
+     * exception <em>must</em> be thrown to preserve the invariant that the
+     * collections will contain no elements in common after the call.</p>
+     * @param c collection containing elements to be removed from this collection
+     * @return {@code true} if this collection changed as a result of the call
+     * @throws UnsupportedOperationException if the {@code removeAll} operation
+     * is not supported by this collection
+     * @throws NullPointerException if this collection is null
+     */
+    boolean removeAll(T_COLL c);
+
+    /**
      * <p>Removes all of the elements of this collection that satisfy the given
      * predicate (optional operation). Errors or runtime exceptions thrown
      * during iteration or my the predicate are relayed to the caller.</p>
@@ -319,8 +412,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * <p>Removes all of the elements of this collection that satisfy the given
      * predicate (optional operation). Errors or runtime exceptions thrown
      * during iteration or by the predicate are relayed to the caller.</p>
-     * @implSpec <p>The default implementation is inherited from
-     * {@link Collection}.</p>
      * @param filter a predicate which returns {@code true} for elements to be
      *               removed
      * @return {@code true} if any elements were removed
@@ -329,9 +420,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * is not supported by this collection
      * @see Collection#removeIf(Predicate)
      */
-    default boolean removeIf(Predicate<? super T> filter) {
-        return Collection.super.removeIf(filter);
-    }
+    boolean removeIf(Predicate<? super T> filter);
 
     /**
      * <p>Retains only the elements in this collection that are contained in the
@@ -348,6 +437,19 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * @see #contains(Object)
      */
     boolean retainAll(Collection<?> c);
+
+    /**
+     * <p>Retains only the elements in this collection that are contained in the
+     * specified collection (optional operation). In other words, removes from
+     * this collection all of its elements that are not contained in the
+     * specified collection.</p>
+     * @param c collection containing elements to be retained in this collection
+     * @return {@code true} if this collection changed as a result of the call
+     * @throws UnsupportedOperationException if the {@code retainAll} operation is
+     * not supported by this collection
+     * @throws NullPointerException if the specified collection is null
+     */
+    boolean retainAll(T_COLL c);
 
     /**
      * Returns the number of elements in this collection. If this collection
@@ -426,10 +528,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      * the size of this collection.</p>
      * <p>If this collection fits in the specified array with room to spare (i.e.
      * the array has more elements than this collection), the element in the array
-     * immediately following the end of the collection is set to {@code null}.
-     * (This is useful in determining the length of this collection <em>only</em>
-     * if the caller knows that this collection does not contain any {@code null}
-     * elements.)</p>
+     * immediately following the end of the collection is set to {@code null}.</p>
      * <p>If this collection makes any guarantees as to what order its elements
      * are returned by its iterator, this method must return the elements in the
      * same order.</p>
@@ -482,7 +581,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      */
     @PrereleaseContent
     interface OfDouble extends PrimitiveCollection<Double,double[],DoubleConsumer,
-            DoublePredicate,Spliterator.OfDouble,DoubleStream> {
+            DoublePredicate,Spliterator.OfDouble,DoubleStream,OfDouble> {
         /**
          * <p>Ensures that this collection contains the specified element (optional
          * operation). Returns {@code true} if this collection changed as a result of
@@ -493,6 +592,10 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * an exception (rather than returning {@code false}). This preserves the
          * invariant that a collection always contains the specified element after
          * this call returns.</p>
+         * <p>Because this method takes boxed values, reliance on it may eliminate any
+         * performance advantage obtained by using a primitive collection; where
+         * possible, users may wish to utilize the {@link #addDouble(double)} method
+         * instead,</p>
          * @implSpec <p>The default implementation is equivalent to
          * {@code addDouble(t.doubleValue())}.</p>
          * @param t element whose presence in this collection is to be ensured
@@ -548,7 +651,10 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean addAll(Collection<? extends Double> c) {
             if (c instanceof OfDouble ofDouble)
                 return addAll(ofDouble);
-            return PrimitiveCollection.super.addAll(c);
+            var changed = false;
+            for (Double d : c)
+                changed |= addDouble(d);
+            return changed;
         }
 
         /**
@@ -694,7 +800,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an empty double collection
          */
         static OfDouble empty() {
-            return EmptyPrimitiveCollection.OfDouble.INSTANCE;
+            return PrimitiveCollections.emptyDoubleSet();
         }
 
         /**
@@ -750,6 +856,9 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * <p>Implementations may optionally return {@code false} when the specified
          * element is not present in the collection, even if the operation would
          * otherwise be unsupported.</p>
+         * <p>As this method requires boxing the element to be removed, reliance upon
+         * it may eliminate any benefit from using a primitive collection. Developers
+         * should prefer using {@link #removeDouble(double)} where possible.</p>
          * @implSpec <p>The default implementation checks whether the specified element
          * is a {@code Double}, and if so passes it to {@link #removeDouble(double)};
          * otherwise it returns {@code false}.</p>
@@ -786,8 +895,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * is not supported by this collection
          * @throws ClassCastException if the types of one or more elements in this
          * collection are incompatible with the specified collection (optional)
-         * @throws NullPointerException if this collection contains one or more
-         * null elements (optional) or if the specified collection is null
+         * @throws NullPointerException if the specified collection is null
          */
         default boolean removeAll(Collection<?> c) {
             if (c instanceof OfDouble ofDouble)
@@ -812,7 +920,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
          * is not supported by this collection
-         * @throws NullPointerException if this collection is null
+         * @throws NullPointerException if the specified collection is null
          */
         default boolean removeAll(OfDouble c) {
             return removeIf((DoublePredicate) c::containsDouble);
@@ -853,7 +961,52 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         /**
          * <p>Removes all of the elements of this collection that satisfy the given
          * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or my the predicate are relayed to the caller.</p>
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @apiNote <p>This method exists here to ensure that when a specialized
+         * predicate can be used, we don't force the use of a boxed type predicate.
+         * In many cases, however, this will actually produce a type ambiguity for
+         * overload, requiring the user to cast their method reference or lambda
+         * to a particular interface. When this ambiguity is encountered, developers
+         * are encouraged to replace this will a call to
+         * {@link #removeIfDouble(DoublePredicate)}.</p>
+         * @implSpec <p>The default implementation forwards to
+         * {@link #removeIfDouble(DoublePredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIf(Predicate)
+         * @see #removeIfDouble(DoublePredicate)
+         */
+        default boolean removeIf(DoublePredicate filter) {
+            return removeIfDouble(filter);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @implSpec <p>The default implementation implicitly converts the
+         * specified predicate into a {@code DoublePredicate} and passes it to
+         * {@link #removeIfDouble(DoublePredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIfDouble(DoublePredicate)
+         */
+        default boolean removeIf(Predicate<? super Double> filter) {
+            return removeIfDouble(filter::test);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
          * @implSpec <p>The default implementation obtains an iterator over this
          * collection, passes each element returned to the predicate, and calls
          * the iterator's {@code remove} method if the predicate returns
@@ -866,7 +1019,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * is not supported by this collection
          * @see #removeIf(Predicate)
          */
-        default boolean removeIf(DoublePredicate filter) {
+        default boolean removeIfDouble(DoublePredicate filter) {
             var changed = false;
             var iterator = iterator();
             while (iterator.hasNext())
@@ -875,28 +1028,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
                     changed = true;
                 }
             return changed;
-        }
-
-        /**
-         * <p>Removes all of the elements of this collection that satisfy the given
-         * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or by the predicate are relayed to the caller.</p>
-         * @implSpec <p>The default implementation checks the runtime type of the predicate
-         * to determine if it is an instance of {@code DoublePredicate}, and if so
-         * passes it to {@link #removeIf(DoublePredicate)}; otherwise, it uses
-         * the default implementation inherited from {@link Collection}.</p>
-         * @param filter a predicate which returns {@code true} for elements to be
-         *               removed
-         * @return {@code true} if any elements were removed
-         * @throws NullPointerException if the specified filter is null
-         * @throws UnsupportedOperationException if the {@code removeIf} operation
-         * is not supported by this collection
-         * @see Collection#removeIf(Predicate)
-         */
-        default boolean removeIf(Predicate<? super Double> filter) {
-            if (filter instanceof DoublePredicate doublePredicate)
-                return removeIf(doublePredicate);
-            return PrimitiveCollection.super.removeIf(filter);
         }
 
         /**
@@ -979,7 +1110,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return a {@code Spliterator.OfDouble} over the elements in this collection
          */
         default Spliterator.OfDouble spliterator() {
-            return new PrimitiveCollectionSpliterator.OfDouble(this, 0);
+            return PrimitiveCollections.doubleSpliterator(this, 0);
         }
 
         /**
@@ -1009,7 +1140,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an unmodifiable view over the specified collection.
          */
         static PrimitiveCollection.OfDouble unmodifiableCollection(PrimitiveCollection.OfDouble coll) {
-            return ForwardingPrimitiveCollection.OfDouble.unmodifiable(coll);
+            return PrimitiveCollections.unmodifiableCollection(coll);
         }
     }
 
@@ -1018,7 +1149,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      */
     @PrereleaseContent
     interface OfInt extends PrimitiveCollection<Integer,int[],IntConsumer,
-            IntPredicate,Spliterator.OfInt,IntStream> {
+            IntPredicate,Spliterator.OfInt,IntStream,OfInt> {
         /**
          * <p>Ensures that this collection contains the specified element (optional
          * operation). Returns {@code true} if this collection changed as a result of
@@ -1084,7 +1215,10 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean addAll(Collection<? extends Integer> c) {
             if (c instanceof OfInt ofInt)
                 return addAll(ofInt);
-            return PrimitiveCollection.super.addAll(c);
+            var changed = false;
+            for (Integer i : c)
+                changed |= addInt(i);
+            return changed;
         }
 
         /**
@@ -1229,7 +1363,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an empty int collection
          */
         static OfInt empty() {
-            return EmptyPrimitiveCollection.OfInt.INSTANCE;
+            return PrimitiveCollections.emptyIntCollection();
         }
 
         /**
@@ -1356,7 +1490,52 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         /**
          * <p>Removes all of the elements of this collection that satisfy the given
          * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or my the predicate are relayed to the caller.</p>
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @apiNote <p>This method exists here to ensure that when a specialized
+         * predicate can be used, we don't force the use of a boxed type predicate.
+         * In many cases, however, this will actually produce a type ambiguity for
+         * overload, requiring the user to cast their method reference or lambda
+         * to a particular interface. When this ambiguity is encountered, developers
+         * are encouraged to replace this will a call to
+         * {@link #removeIfInt(IntPredicate)}.</p>
+         * @implSpec <p>The default implementation forwards to
+         * {@link #removeIfInt(IntPredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIf(Predicate)
+         * @see #removeIfInt(IntPredicate)
+         */
+        default boolean removeIf(IntPredicate filter) {
+            return removeIfInt(filter);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @implSpec <p>The default implementation implicitly converts the
+         * specified predicate to a {@code IntPredicate} and passes it to
+         * {@link #removeIfInt(IntPredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIfInt(IntPredicate)
+         */
+        default boolean removeIf(Predicate<? super Integer> filter) {
+            return removeIfInt(filter::test);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
          * @implSpec <p>The default implementation obtains an iterator over this
          * collection, passes each element returned to the predicate, and calls
          * the iterator's {@code remove} method if the predicate returns
@@ -1369,7 +1548,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * is not supported by this collection
          * @see #removeIf(Predicate)
          */
-        default boolean removeIf(IntPredicate filter) {
+        default boolean removeIfInt(IntPredicate filter) {
             var changed = false;
             var iterator = iterator();
             while (iterator.hasNext())
@@ -1378,28 +1557,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
                     changed = true;
                 }
             return changed;
-        }
-
-        /**
-         * <p>Removes all of the elements of this collection that satisfy the given
-         * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or by the predicate are relayed to the caller.</p>
-         * @implSpec <p>The default implementation checks the runtime type of the predicate
-         * to determine if it is an instance of {@code IntPredicate}, and if so
-         * passes it to {@link #removeIf(IntPredicate)}; otherwise, it uses
-         * the default implementation inherited from {@link Collection}.</p>
-         * @param filter a predicate which returns {@code true} for elements to be
-         *               removed
-         * @return {@code true} if any elements were removed
-         * @throws NullPointerException if the specified filter is null
-         * @throws UnsupportedOperationException if the {@code removeIf} operation
-         * is not supported by this collection
-         * @see Collection#removeIf(Predicate)
-         */
-        default boolean removeIf(Predicate<? super Integer> filter) {
-            if (filter instanceof IntPredicate intPredicate)
-                return removeIf(intPredicate);
-            return PrimitiveCollection.super.removeIf(filter);
         }
 
         /**
@@ -1514,7 +1671,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return a {@code Spliterator.OfInt} over the elements in this collection
          */
         default Spliterator.OfInt spliterator() {
-            return new PrimitiveCollectionSpliterator.OfInt(this, 0);
+            return PrimitiveCollections.intSpliterator(this, 0);
         }
 
         /**
@@ -1544,7 +1701,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an unmodifiable view over the specified collection.
          */
         static PrimitiveCollection.OfInt unmodifiableCollection(PrimitiveCollection.OfInt coll) {
-            return ForwardingPrimitiveCollection.OfInt.unmodifiable(coll);
+            return PrimitiveCollections.unmodifiableCollection(coll);
         }
     }
 
@@ -1553,7 +1710,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
      */
     @PrereleaseContent
     interface OfLong extends PrimitiveCollection<Long,long[],LongConsumer,
-            LongPredicate,Spliterator.OfLong,LongStream> {
+            LongPredicate,Spliterator.OfLong,LongStream,OfLong> {
         /**
          * <p>Ensures that this collection contains the specified element (optional
          * operation). Returns {@code true} if this collection changed as a result of
@@ -1619,7 +1776,10 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean addAll(Collection<? extends Long> c) {
             if (c instanceof OfLong ofLong)
                 return addAll(ofLong);
-            return PrimitiveCollection.super.addAll(c);
+            var changed = false;
+            for (Long l : c)
+                changed |= addLong(l);
+            return changed;
         }
 
         /**
@@ -1764,7 +1924,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an empty long collection
          */
         static OfLong empty() {
-            return EmptyPrimitiveCollection.OfLong.INSTANCE;
+            return PrimitiveCollections.emptyLongCollection();
         }
 
         /**
@@ -1891,7 +2051,52 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         /**
          * <p>Removes all of the elements of this collection that satisfy the given
          * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or my the predicate are relayed to the caller.</p>
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @apiNote <p>This method exists here to ensure that when a specialized
+         * predicate can be used, we don't force the use of a boxed type predicate.
+         * In many cases, however, this will actually produce a type ambiguity for
+         * overload, requiring the user to cast their method reference or lambda
+         * to a particular interface. When this ambiguity is encountered, developers
+         * are encouraged to replace this will a call to
+         * {@link #removeIfLong(LongPredicate)}.</p>
+         * @implSpec <p>The default implementation forwards to
+         * {@link #removeIfLong(LongPredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIf(Predicate)
+         * @see #removeIfLong(LongPredicate)
+         */
+        default boolean removeIf(LongPredicate filter) {
+            return removeIfLong(filter);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
+         * @implSpec <p>The default implementation implicitly converts the
+         * specified predicate to a {@code LongPredicate} and passes it to
+         * {@link #removeIfLong(LongPredicate)}.</p>
+         * @param filter a predicate which returns {@code true} for elements to be
+         *               removed
+         * @return {@code true} if any elements were removed
+         * @throws NullPointerException if the specified filter is null
+         * @throws UnsupportedOperationException if the {@code removeIf} operation
+         * is not supported by this collection
+         * @see #removeIfLong(LongPredicate)
+         */
+        default boolean removeIf(Predicate<? super Long> filter) {
+            return removeIfLong(filter::test);
+        }
+
+        /**
+         * <p>Removes all of the elements of this collection that satisfy the given
+         * predicate (optional operation). Errors or runtime exceptions thrown
+         * during iteration or by the predicate are relayed to the caller.</p>
          * @implSpec <p>The default implementation obtains an iterator over this
          * collection, passes each element returned to the predicate, and calls
          * the iterator's {@code remove} method if the predicate returns
@@ -1904,7 +2109,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * is not supported by this collection
          * @see #removeIf(Predicate)
          */
-        default boolean removeIf(LongPredicate filter) {
+        default boolean removeIfLong(LongPredicate filter) {
             var changed = false;
             var iterator = iterator();
             while (iterator.hasNext())
@@ -1913,28 +2118,6 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
                     changed = true;
                 }
             return changed;
-        }
-
-        /**
-         * <p>Removes all of the elements of this collection that satisfy the given
-         * predicate (optional operation). Errors or runtime exceptions thrown
-         * during iteration or by the predicate are relayed to the caller.</p>
-         * @implSpec <p>The default implementation checks the runtime type of the predicate
-         * to determine if it is an instance of {@code LongPredicate}, and if so
-         * passes it to {@link #removeIf(LongPredicate)}; otherwise, it uses
-         * the default implementation inherited from {@link Collection}.</p>
-         * @param filter a predicate which returns {@code true} for elements to be
-         *               removed
-         * @return {@code true} if any elements were removed
-         * @throws NullPointerException if the specified filter is null
-         * @throws UnsupportedOperationException if the {@code removeIf} operation
-         * is not supported by this collection
-         * @see Collection#removeIf(Predicate)
-         */
-        default boolean removeIf(Predicate<? super Long> filter) {
-            if (filter instanceof LongPredicate longPredicate)
-                return removeIf(longPredicate);
-            return PrimitiveCollection.super.removeIf(filter);
         }
 
         /**
@@ -2049,7 +2232,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return a {@code Spliterator.OfLong} over the elements in this collection
          */
         default Spliterator.OfLong spliterator() {
-            return new PrimitiveCollectionSpliterator.OfLong(this, 0);
+            return PrimitiveCollections.longSpliterator(this, 0);
         }
 
         /**
@@ -2079,7 +2262,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @return an unmodifiable view over the specified collection.
          */
         static PrimitiveCollection.OfLong unmodifiableCollection(PrimitiveCollection.OfLong coll) {
-            return ForwardingPrimitiveCollection.OfLong.unmodifiable(coll);
+            return PrimitiveCollections.unmodifiableCollection(coll);
         }
     }
 }
