@@ -23,118 +23,96 @@ class Views {
     static <E> Iterator<E> unmodifiableIteratorView(Iterator<E> delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Iterator<?>,Iterator<E>>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableIteratorView<>(forwarder) :
-                new UnmodifiableIteratorView<>(forwarder);
+                new SerializableUnmodifiableIteratorView<>(delegate, ForwardingType.PURE) :
+                new UnmodifiableIteratorView<>(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveIterator.OfDouble unmodifiableDoubleIteratorView(
             PrimitiveIterator.OfDouble delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfDouble>(
-                delegate, ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableDoubleIteratorView(forwarder) :
-                new UnmodifiableDoubleIteratorView(forwarder);
+                new SerializableUnmodifiableDoubleIteratorView(delegate, ForwardingType.PURE) :
+                new UnmodifiableDoubleIteratorView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveIterator.OfInt unmodifiableIntIteratorView(
             PrimitiveIterator.OfInt delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfInt>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableIntIteratorView(forwarder) :
-                new UnmodifiableIntIteratorView(forwarder);
+                new SerializableUnmodifiableIntIteratorView(delegate, ForwardingType.PURE) :
+                new UnmodifiableIntIteratorView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveIterator.OfLong unmodifiableLongIteratorView(
             PrimitiveIterator.OfLong delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Iterator<?>,PrimitiveIterator.OfLong>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableLongIteratorView(forwarder) :
-                new UnmodifiableLongIteratorView(forwarder);
+                new SerializableUnmodifiableLongIteratorView(delegate, ForwardingType.PURE) :
+                new UnmodifiableLongIteratorView(delegate, ForwardingType.PURE);
     }
 
     static <E> Collection<E> unmodifiableCollectionView(Collection<E> delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Collection<?>,Collection<E>>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableCollectionView<>(forwarder) :
-                new UnmodifiableCollectionView<>(forwarder);
+                new SerializableUnmodifiableCollectionView<>(delegate, ForwardingType.PURE) :
+                new UnmodifiableCollectionView<>(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveCollection.OfDouble unmodifiableDoubleCollectionView(
             PrimitiveCollection.OfDouble delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfDouble>(
-                delegate, ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableDoubleCollectionView(forwarder) :
-                new UnmodifiableDoubleCollectionView(forwarder);
+                new SerializableUnmodifiableDoubleCollectionView(delegate, ForwardingType.PURE) :
+                new UnmodifiableDoubleCollectionView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveCollection.OfInt unmodifiableIntCollectionView(
             PrimitiveCollection.OfInt delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfInt>(
-                delegate, ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableIntCollectionView(forwarder) :
-                new UnmodifiableIntCollectionView(forwarder);
+                new SerializableUnmodifiableIntCollectionView(delegate, ForwardingType.PURE) :
+                new UnmodifiableIntCollectionView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveCollection.OfLong unmodifiableLongCollectionView(
             PrimitiveCollection.OfLong delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Collection<?>,PrimitiveCollection.OfLong>(
-                delegate, ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableLongCollectionView(forwarder) :
-                new UnmodifiableLongCollectionView(forwarder);
+                new SerializableUnmodifiableLongCollectionView(delegate, ForwardingType.PURE) :
+                new UnmodifiableLongCollectionView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveSet.OfDouble unmodifiableDoubleSetView(
             PrimitiveSet.OfDouble delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfDouble>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableDoubleSetView(forwarder) :
-                new UnmodifiableDoubleSetView(forwarder);
+                new SerializableUnmodifiableDoubleSetView(delegate, ForwardingType.PURE) :
+                new UnmodifiableDoubleSetView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveSet.OfInt unmodifiableIntSetView(PrimitiveSet.OfInt delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfInt>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableIntSetView(forwarder) :
-                new UnmodifiableIntSetView(forwarder);
+                new SerializableUnmodifiableIntSetView(delegate, ForwardingType.PURE) :
+                new UnmodifiableIntSetView(delegate, ForwardingType.PURE);
     }
 
     static PrimitiveSet.OfLong unmodifiableLongSetView(PrimitiveSet.OfLong delegate) {
         if (delegate instanceof UnmodifiableView)
             return delegate;
-        var forwarder = new Forwarder<Set<?>,PrimitiveSet.OfLong>(delegate,
-                ForwardingType.PURE, MaskingType.UNMODIFIABLE);
         return delegate instanceof Serializable ?
-                new SerializableUnmodifiableLongSetView(forwarder) :
-                new UnmodifiableLongSetView(forwarder);
+                new SerializableUnmodifiableLongSetView(delegate, ForwardingType.PURE) :
+                new UnmodifiableLongSetView(delegate, ForwardingType.PURE);
     }
 
     @PrereleaseContent
@@ -163,26 +141,6 @@ class Views {
     }
 
     @PrereleaseContent
-    enum MaskingType {
-        /**
-         * Denotes that this wrapper should enforce immutability. Any methods which
-         * return a view of the class will return an unmodifiable view if not
-         * overridden; most forwarding classes will provide one or more
-         * {@code maskIfNeeded} methods that overriding methods may use to ensure that
-         * any backing class they expose is exposed only through an unmodifiable
-         * view.
-         */
-        UNMODIFIABLE,
-        /**
-         * Denotes that this wrapper should inherit immutability from the backing
-         * class if possible. If the backing class is not a view implemented
-         * by a forwarding class, and is not implemented by a class known to be
-         * unmodifiable, it will be assumed be mutable.
-         */
-        DELEGATE
-    }
-
-    @PrereleaseContent
     static class Forwarder<DELEGATE_TYPE, VIEW_TYPE extends DELEGATE_TYPE>
             implements Serializable {
         private final DELEGATE_TYPE delegate;
@@ -191,13 +149,13 @@ class Views {
 
         Forwarder(DELEGATE_TYPE delegate,
                   ForwardingType forwardingType,
-                  MaskingType maskingType) {
+                  boolean isUnmodifiableView) {
             this.delegate = delegate;
             this.forwardingType = forwardingType;
             if (delegate instanceof UnmodifiableView)
                 subViewsRequireMasking = false;
             else
-                subViewsRequireMasking = maskingType == MaskingType.UNMODIFIABLE;
+                subViewsRequireMasking = isUnmodifiableView;
         }
 
         @SuppressWarnings("unchecked")
@@ -370,8 +328,9 @@ class Views {
     static class IteratorView<E> extends AbstractIteratorView<E> {
         private final Forwarder<Iterator<?>,Iterator<E>> forwarder;
 
-        IteratorView(Forwarder<Iterator<?>,Iterator<E>> forwarder) {
-            this.forwarder = forwarder;
+        IteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -385,8 +344,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Iterator<?>,Iterator<E>> forwarder;
 
-        SerializableIteratorView(Forwarder<Iterator<?>,Iterator<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -400,8 +360,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Iterator<?>,Iterator<E>> forwarder;
 
-        UnmodifiableIteratorView(Forwarder<Iterator<?>,Iterator<E>> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -415,8 +375,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Iterator<?>,Iterator<E>> forwarder;
 
-        SerializableUnmodifiableIteratorView(Forwarder<Iterator<?>,Iterator<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -467,8 +427,9 @@ class Views {
     static class DoubleIteratorView extends AbstractDoubleIteratorView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder;
 
-        DoubleIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        DoubleIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -482,8 +443,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder;
 
-        SerializableDoubleIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableDoubleIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -497,8 +459,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder;
 
-        UnmodifiableDoubleIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableDoubleIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -512,8 +474,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder;
 
-        SerializableUnmodifiableDoubleIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableDoubleIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -564,8 +526,9 @@ class Views {
     static class IntIteratorView extends AbstractIntIteratorView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder;
 
-        IntIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        IntIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -579,8 +542,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder;
 
-        SerializableIntIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableIntIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -594,8 +558,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder;
 
-        UnmodifiableIntIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableIntIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -609,8 +573,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder;
 
-        SerializableUnmodifiableIntIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableIntIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -661,8 +625,9 @@ class Views {
     static class LongIteratorView extends AbstractLongIteratorView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder;
 
-        LongIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        LongIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -676,8 +641,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder;
 
-        SerializableLongIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableLongIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -691,8 +657,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder;
 
-        UnmodifiableLongIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableLongIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -706,8 +672,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder;
 
-        SerializableUnmodifiableLongIteratorView(Forwarder<Iterator<?>,PrimitiveIterator.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableLongIteratorView(Iterator<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -852,8 +818,9 @@ class Views {
     static class CollectionView<E> extends AbstractCollectionView<E> {
         private final Forwarder<Collection<?>,Collection<E>> forwarder;
 
-        CollectionView(Forwarder<Collection<?>,Collection<E>> forwarder) {
-            this.forwarder = forwarder;
+        CollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -867,8 +834,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Collection<?>,Collection<E>> forwarder;
 
-        SerializableCollectionView(Forwarder<Collection<?>,Collection<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -882,8 +850,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Collection<?>,Collection<E>> forwarder;
 
-        UnmodifiableCollectionView(Forwarder<Collection<?>,Collection<E>> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -897,8 +865,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Collection<?>,Collection<E>> forwarder;
 
-        SerializableUnmodifiableCollectionView(Forwarder<Collection<?>,Collection<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1131,8 +1099,9 @@ class Views {
     static class DoubleCollectionView extends AbstractDoubleCollectionView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder;
 
-        DoubleCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        DoubleCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1146,8 +1115,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder;
 
-        SerializableDoubleCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableDoubleCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1161,8 +1131,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder;
 
-        UnmodifiableDoubleCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableDoubleCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1177,8 +1147,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder;
 
-        SerializableUnmodifiableDoubleCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableDoubleCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1340,8 +1310,9 @@ class Views {
     static class IntCollectionView extends AbstractIntCollectionView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder;
 
-        IntCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        IntCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1355,8 +1326,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder;
 
-        SerializableIntCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableIntCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1370,8 +1342,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder;
 
-        UnmodifiableIntCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableIntCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1385,8 +1357,8 @@ class Views {
             extends AbstractIntCollectionView implements Serializable, UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder;
 
-        SerializableUnmodifiableIntCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableIntCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1552,8 +1524,9 @@ class Views {
     static class LongCollectionView extends AbstractLongCollectionView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder;
 
-        LongCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        LongCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1567,8 +1540,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder;
 
-        SerializableLongCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableLongCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1582,8 +1556,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder;
 
-        UnmodifiableLongCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableLongCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1597,8 +1571,8 @@ class Views {
             extends AbstractLongCollectionView implements Serializable, UnmodifiableView {
         private final Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder;
 
-        SerializableUnmodifiableLongCollectionView(Forwarder<Collection<?>,PrimitiveCollection.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableLongCollectionView(Collection<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1727,8 +1701,9 @@ class Views {
     static class SetView<E> extends AbstractSetView<E> {
         private final Forwarder<Set<?>,Set<E>> forwarder;
 
-        SetView(Forwarder<Set<?>,Set<E>> forwarder) {
-            this.forwarder = forwarder;
+        SetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1742,8 +1717,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Set<?>,Set<E>> forwarder;
 
-        SerializableSetView(Forwarder<Set<?>,Set<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -1757,8 +1733,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Set<?>,Set<E>> forwarder;
 
-        UnmodifiableSetView(Forwarder<Set<?>,Set<E>> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -1772,8 +1748,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Set<?>,Set<E>> forwarder;
 
-        SerializableUnmodifiableSetView(Forwarder<Set<?>,Set<E>> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2015,8 +1991,9 @@ class Views {
     static class DoubleSetView extends AbstractDoubleSetView {
         private final Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder;
 
-        DoubleSetView(Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        DoubleSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2030,8 +2007,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder;
 
-        SerializableDoubleSetView(Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableDoubleSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2045,8 +2023,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder;
 
-        UnmodifiableDoubleSetView(Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableDoubleSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2060,8 +2038,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder;
 
-        SerializableUnmodifiableDoubleSetView(Forwarder<Set<?>,PrimitiveSet.OfDouble> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableDoubleSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2233,8 +2211,9 @@ class Views {
     static class IntSetView extends AbstractIntSetView {
         private final Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder;
 
-        IntSetView(Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        IntSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2248,8 +2227,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder;
 
-        SerializableIntSetView(Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableIntSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2263,8 +2243,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder;
 
-        UnmodifiableIntSetView(Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableIntSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2278,8 +2258,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder;
 
-        SerializableUnmodifiableIntSetView(Forwarder<Set<?>,PrimitiveSet.OfInt> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableIntSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2452,8 +2432,9 @@ class Views {
     static class LongSetView extends AbstractLongSetView {
         private final Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder;
 
-        LongSetView(Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        LongSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2467,8 +2448,9 @@ class Views {
             implements Serializable {
         private final Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder;
 
-        SerializableLongSetView(Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableLongSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType,
+                    this instanceof UnmodifiableView);
         }
 
         @Override
@@ -2482,8 +2464,8 @@ class Views {
             implements UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder;
 
-        UnmodifiableLongSetView(Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        UnmodifiableLongSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
@@ -2497,8 +2479,8 @@ class Views {
             implements Serializable, UnmodifiableView {
         private final Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder;
 
-        SerializableUnmodifiableLongSetView(Forwarder<Set<?>,PrimitiveSet.OfLong> forwarder) {
-            this.forwarder = forwarder;
+        SerializableUnmodifiableLongSetView(Set<?> delegate, ForwardingType forwardingType) {
+            forwarder = new Forwarder<>(delegate, forwardingType, true);
         }
 
         @Override
