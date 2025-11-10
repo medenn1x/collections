@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -601,5 +602,101 @@ class ViewsTest {
 
         assertThat(t).isInstanceOf(UnsupportedOperationException.class);
         verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureDoubleIteratorView__forwardsRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new DoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowDoubleIteratorView__processesRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new DoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__pureDoubleIteratorView__forwardRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new DoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__shallowDoubleIteratorView__processesRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new DoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__minimalDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
     }
 }
