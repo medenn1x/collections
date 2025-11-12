@@ -766,12 +766,11 @@ class ViewsTest {
     @Test
     public void nextDouble__minimalDoubleIteratorView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
-        var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        var cut = new DoubleIteratorView(iterator, ForwardingType.MINIMAL);
 
         var t = catchThrowable(cut::nextDouble);
 
         assertThat(t).isInstanceOf(IllegalStateException.class);
-        verify(cut).nextDouble();
         verifyNoMoreInteractions(iterator);
     }
 
@@ -784,6 +783,552 @@ class ViewsTest {
         cut.remove();
 
         verify(iterator).remove();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__pureUnmodifiableDoubleIteratorView__forwardRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__minimalUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__unmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Double.valueOf(1.0));
+        verify(iterator).nextDouble();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextDouble__pureOrShallowUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, forwardingType);
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.nextDouble();
+
+        assertThat(result).isEqualTo(1.0);
+        verify(iterator).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextDouble__minimalUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextDouble);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__unmodifiableDoubleIteratorView__throwsException(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new UnmodifiableDoubleIteratorView(iterator, forwardingType));
+
+        var t = catchThrowable(cut::remove);
+
+        assertThat(t).isInstanceOf(UnsupportedOperationException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureSerializableDoubleIteratorView__forwardsRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowSerializableDoubleIteratorView__processesRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalSerializableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__pureSerializableDoubleIteratorView__forwardRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__shallowSerializableDoubleIteratorView__processesRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__minimalSerializableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__serializableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureSerializableDoubleIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowSerializableDoubleIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableDoubleIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Double.valueOf(1.0));
+        verify(iterator).nextDouble();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalSerializableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextDouble__pureOrShallowSerializableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, forwardingType);
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.nextDouble();
+
+        assertThat(result).isEqualTo(1.0);
+        verify(iterator).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextDouble__minimalSerializableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextDouble);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__serializableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableDoubleIteratorView(iterator, forwardingType);
+
+        cut.remove();
+
+        verify(iterator).remove();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureSerializableUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalSerializableUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__pureSerializableUnmodifiableDoubleIteratorView__forwardRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__minimalSerializableUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator, never()).forEachRemaining(any(Consumer.class));
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__serializableUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureSerializableUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Double.valueOf(1.0));
+        verify(iterator).nextDouble();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalSerializableUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextDouble__pureOrShallowSerializableUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.nextDouble();
+
+        assertThat(result).isEqualTo(1.0);
+        verify(iterator).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextDouble__minimalSerializableUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextDouble);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__serializableUnmodifiableDoubleIteratorView__throwsException(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+
+        var t = catchThrowable(cut::remove);
+
+        assertThat(t).isInstanceOf(UnsupportedOperationException.class);
         verifyNoMoreInteractions(iterator);
     }
 }
