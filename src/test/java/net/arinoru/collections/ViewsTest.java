@@ -10,6 +10,7 @@ import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -1345,7 +1346,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_Consumer__minimalIntIteratorView__failsOnNextIntInvocation() {
         var action = (Consumer<Integer>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new IntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1391,7 +1392,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_IntConsumer__minimalIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_IntConsumer__minimalIntIteratorView__failsOnNextIntInvocation() {
         var action = mock(IntConsumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new IntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1469,7 +1470,7 @@ class ViewsTest {
     }
 
     @Test
-    public void nextDouble__minimalIntIteratorView__throwsException() {
+    public void nextInt__minimalIntIteratorView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new IntIteratorView(iterator, ForwardingType.MINIMAL);
 
@@ -1523,7 +1524,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalUnmodifiableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_Consumer__minimalUnmodifiableIntIteratorView__failsOnNextIntInvocation() {
         var action = (Consumer<Integer>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new UnmodifiableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1569,7 +1570,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_IntConsumer__minimalUnmodifiableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_IntConsumer__minimalUnmodifiableIntIteratorView__failsOnNextIntInvocation() {
         var action = mock(IntConsumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new UnmodifiableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1701,7 +1702,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalSerializableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_Consumer__minimalSerializableIntIteratorView__failsOnNextIntInvocation() {
         var action = (Consumer<Integer>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new SerializableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1747,7 +1748,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_IntConsumer__minimalSerializableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_IntConsumer__minimalSerializableIntIteratorView__failsOnNextIntInvocation() {
         var action = mock(IntConsumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new SerializableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1825,7 +1826,7 @@ class ViewsTest {
     }
 
     @Test
-    public void nextDouble__minimalSerializableIntIteratorView__throwsException() {
+    public void nextInt__minimalSerializableIntIteratorView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new SerializableIntIteratorView(iterator, ForwardingType.MINIMAL);
 
@@ -1879,7 +1880,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalSerializableUnmodifiableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_Consumer__minimalSerializableUnmodifiableIntIteratorView__failsOnNextIntInvocation() {
         var action = (Consumer<Integer>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new SerializableUnmodifiableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -1925,7 +1926,7 @@ class ViewsTest {
     }
 
     @Test
-    public void forEachRemaining_IntConsumer__minimalSerializableUnmodifiableIntIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_IntConsumer__minimalSerializableUnmodifiableIntIteratorView__failsOnNextIntInvocation() {
         var action = mock(IntConsumer.class);
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = spy(new SerializableUnmodifiableIntIteratorView(iterator, ForwardingType.MINIMAL));
@@ -2018,6 +2019,718 @@ class ViewsTest {
     public void remove__serializableUnmodifiableIntIteratorView__throwsException(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new SerializableUnmodifiableIntIteratorView(iterator, forwardingType);
+
+        var t = catchThrowable(cut::remove);
+
+        assertThat(t).isInstanceOf(UnsupportedOperationException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureLongIteratorView__forwardsRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowLongIteratorView__processesRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalLongIteratorView__failsOnNextLongInvocation() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new LongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__pureLongIteratorView__forwardRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__shallowLongIteratorView__processesRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__minimalLongIteratorView__failsOnNextLongInvocation() {
+        var action = mock(IntConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfInt.class);
+        var cut = spy(new IntIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextInt();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__longIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureLongIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowLongIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new LongIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Long.valueOf(1));
+        verify(iterator).nextLong();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new LongIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextLong__pureOrShallowLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, forwardingType);
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.nextLong();
+
+        assertThat(result).isEqualTo(1);
+        verify(iterator).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextLong__minimalLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextLong);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__longIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new LongIteratorView(iterator, forwardingType);
+
+        cut.remove();
+
+        verify(iterator).remove();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureUnmodifiableLongIteratorView__forwardsRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowUnmodifiableLongIteratorView__processesRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__pureUnmodifiableLongIteratorView__forwardRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__shallowUnmodifiableLongIteratorView__processesRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__minimalUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__unmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureUnmodifiableLongIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowUnmodifiableLongIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Long.valueOf(1));
+        verify(iterator).nextLong();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalUnmodifiableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextLong__pureOrShallowUnmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.nextLong();
+
+        assertThat(result).isEqualTo(1);
+        verify(iterator).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextLong__minimalUnmodifiableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextLong);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__unmodifiableLongIteratorView__throwsException(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
+
+        var t = catchThrowable(cut::remove);
+
+        assertThat(t).isInstanceOf(UnsupportedOperationException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureSerializableLongIteratorView__forwardsRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowSerializableLongIteratorView__processesRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalSerializableLongIteratorView__failsOnNextLongInvocation() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__pureSerializableLongIteratorView__forwardRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__shallowSerializableLongIteratorView__processesRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__minimalSerializableLongIteratorView__failsOnNextLongInvocation() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__serializableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureSerializableLongIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowSerializableLongIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableLongIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Long.valueOf(1));
+        verify(iterator).nextLong();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalSerializableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableLongIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextLong__pureOrShallowSerializableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, forwardingType);
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.nextLong();
+
+        assertThat(result).isEqualTo(1);
+        verify(iterator).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextLong__minimalSerializableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextLong);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__serializableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableLongIteratorView(iterator, forwardingType);
+
+        cut.remove();
+
+        verify(iterator).remove();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__pureSerializableUnmodifiableLongIteratorView__forwardsRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowSerializableUnmodifiableLongIteratorView__processesRequest() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalSerializableUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+        var action = (Consumer<Long>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__pureSerializableUnmodifiableLongIteratorView__forwardRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__shallowSerializableUnmodifiableLongIteratorView__processesRequest() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Long.valueOf(1);
+        var val2 = Long.valueOf(2);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextLong()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextLong();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_LongConsumer__minimalSerializableUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+        var action = mock(LongConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__serializableUnmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureSerializableUnmodifiableLongIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowSerializableUnmodifiableLongIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Long.valueOf(1));
+        verify(iterator).nextLong();
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalSerializableUnmodifiableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = spy(new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextLong__pureOrShallowSerializableUnmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, forwardingType);
+        when(iterator.nextLong()).thenReturn(1L);
+
+        var result = cut.nextLong();
+
+        assertThat(result).isEqualTo(1);
+        verify(iterator).nextLong();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextLong__minimalSerializableUnmodifiableLongIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextLong);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__serializableUnmodifiableLongIteratorView__throwsException(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfLong.class);
+        var cut = new SerializableUnmodifiableLongIteratorView(iterator, forwardingType);
 
         var t = catchThrowable(cut::remove);
 
