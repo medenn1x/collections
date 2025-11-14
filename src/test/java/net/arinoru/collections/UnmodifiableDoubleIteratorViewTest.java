@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
 class UnmodifiableDoubleIteratorViewTest {
     @Test
-    public void forEachRemaining_Consumer__pureUnmodifiableDoubleIteratorView__forwardsRequest() {
+    public void forEachRemaining_Consumer__pureView__forwardsRequest() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
@@ -29,7 +29,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+    public void forEachRemaining_Consumer__shallowView__processesRequest() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
@@ -48,7 +48,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_Consumer__minimalView__failsOnNextDoubleInvocation() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
@@ -63,7 +63,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__pureUnmodifiableDoubleIteratorView__forwardRequest() {
+    public void forEachRemaining_DoubleConsumer__pureView__forwardRequest() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
@@ -75,7 +75,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+    public void forEachRemaining_DoubleConsumer__shallowView__processesRequest() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
@@ -94,7 +94,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__minimalUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+    public void forEachRemaining_DoubleConsumer__minimalView__failsOnNextDoubleInvocation() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
@@ -110,7 +110,7 @@ class UnmodifiableDoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void hasNext__unmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, forwardingType);
 
@@ -121,7 +121,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void next__pureUnmodifiableDoubleIteratorView__forwardsRequest() {
+    public void next__pureView__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
 
@@ -132,7 +132,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void next__shallowUnmodifiableDoubleIteratorView__processesRequest() {
+    public void next__shallowView__processesRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW));
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -146,7 +146,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void next__minimalUnmodifiableDoubleIteratorView__throwsException() {
+    public void next__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
 
@@ -159,7 +159,7 @@ class UnmodifiableDoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void nextDouble__pureOrShallowUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void nextDouble__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, forwardingType);
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -172,7 +172,7 @@ class UnmodifiableDoubleIteratorViewTest {
     }
 
     @Test
-    public void nextDouble__minimalUnmodifiableDoubleIteratorView__throwsException() {
+    public void nextDouble__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL);
 
@@ -184,7 +184,7 @@ class UnmodifiableDoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void remove__unmodifiableDoubleIteratorView__throwsException(ForwardingType forwardingType) {
+    public void remove__anyView__throwsException(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableDoubleIteratorView(iterator, forwardingType);
 

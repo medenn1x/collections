@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
 class UnmodifiableLongIteratorViewTest {
     @Test
-    public void forEachRemaining_Consumer__pureUnmodifiableLongIteratorView__forwardsRequest() {
+    public void forEachRemaining_Consumer__pureView__forwardsRequest() {
         var action = (Consumer<Long>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
@@ -29,7 +29,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__shallowUnmodifiableLongIteratorView__processesRequest() {
+    public void forEachRemaining_Consumer__shallowView__processesRequest() {
         var action = (Consumer<Long>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
@@ -48,7 +48,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+    public void forEachRemaining_Consumer__minimalView__failsOnNextLongInvocation() {
         var action = (Consumer<Long>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
@@ -63,7 +63,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_LongConsumer__pureUnmodifiableLongIteratorView__forwardRequest() {
+    public void forEachRemaining_LongConsumer__pureView__forwardRequest() {
         var action = mock(LongConsumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
@@ -75,7 +75,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_LongConsumer__shallowUnmodifiableLongIteratorView__processesRequest() {
+    public void forEachRemaining_LongConsumer__shallowView__processesRequest() {
         var action = mock(LongConsumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW);
@@ -94,7 +94,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_LongConsumer__minimalUnmodifiableLongIteratorView__failsOnNextLongInvocation() {
+    public void forEachRemaining_LongConsumer__minimalView__failsOnNextLongInvocation() {
         var action = mock(LongConsumer.class);
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
@@ -110,7 +110,7 @@ class UnmodifiableLongIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void hasNext__unmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
 
@@ -121,7 +121,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void next__pureUnmodifiableLongIteratorView__forwardsRequest() {
+    public void next__pureView__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.PURE);
 
@@ -132,7 +132,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void next__shallowUnmodifiableLongIteratorView__processesRequest() {
+    public void next__shallowView__processesRequest() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.SHALLOW));
         when(iterator.nextLong()).thenReturn(1L);
@@ -146,7 +146,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void next__minimalUnmodifiableLongIteratorView__throwsException() {
+    public void next__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = spy(new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL));
 
@@ -159,7 +159,7 @@ class UnmodifiableLongIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void nextLong__pureOrShallowUnmodifiableLongIteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void nextLong__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
         when(iterator.nextLong()).thenReturn(1L);
@@ -172,7 +172,7 @@ class UnmodifiableLongIteratorViewTest {
     }
 
     @Test
-    public void nextLong__minimalUnmodifiableLongIteratorView__throwsException() {
+    public void nextLong__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, ForwardingType.MINIMAL);
 
@@ -184,7 +184,7 @@ class UnmodifiableLongIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void remove__unmodifiableLongIteratorView__throwsException(ForwardingType forwardingType) {
+    public void remove__anyView__throwsException(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableLongIteratorView(iterator, forwardingType);
 

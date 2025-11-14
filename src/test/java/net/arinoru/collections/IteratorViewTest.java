@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
 class IteratorViewTest {
     @Test
-    public void forEachRemaining__pureIteratorView__forwardsRequest() {
+    public void forEachRemaining__pureView__forwardsRequest() {
         var action = (Consumer<Object>) mock(Consumer.class);
         var iterator = mock(Iterator.class);
         var cut = new IteratorView<>(iterator, ForwardingType.PURE);
@@ -29,7 +29,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void forEachRemaining__shallowOrMinimalIteratorView__processesRequest(ForwardingType forwardingType) {
+    public void forEachRemaining__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
         var action = (Consumer<Object>) mock(Consumer.class);
         var iterator = mock(Iterator.class);
         var cut = new IteratorView<>(iterator, forwardingType);
@@ -49,7 +49,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void hasNext__iteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new IteratorView<>(iterator, forwardingType);
 
@@ -61,7 +61,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void next__iteratorViewNotBackedByPrimitiveIterator__forwardsRequest(ForwardingType forwardingType) {
+    public void next__anyViewNotBackedByPrimitiveIterator__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new IteratorView<>(iterator, forwardingType);
         var ob = new Object();
@@ -75,7 +75,7 @@ class IteratorViewTest {
     }
 
     @Test
-    public void next__pureIteratorViewBackedByDoubleIterator__forwardsRequest() {
+    public void next__pureViewBackedByDoubleIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new IteratorView<>(iterator, ForwardingType.PURE);
 
@@ -87,7 +87,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalIteratorViewBackedByDoubleIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByDoubleIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new IteratorView<Double>(iterator, forwardingType);
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -100,7 +100,7 @@ class IteratorViewTest {
     }
 
     @Test
-    public void next__pureIteratorViewBackedByIntIterator__forwardsRequest() {
+    public void next__pureViewBackedByIntIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new IteratorView<>(iterator, ForwardingType.PURE);
 
@@ -112,7 +112,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalIteratorViewBackedByIntIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByIntIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new IteratorView<Integer>(iterator, forwardingType);
         when(iterator.nextInt()).thenReturn(1);
@@ -125,7 +125,7 @@ class IteratorViewTest {
     }
 
     @Test
-    public void next__pureIteratorViewBackedByLongIterator__forwardsRequest() {
+    public void next__pureViewBackedByLongIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new IteratorView<>(iterator, ForwardingType.PURE);
 
@@ -137,7 +137,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalIteratorViewBackedByLongIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByLongIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new IteratorView<Long>(iterator, forwardingType);
         when(iterator.nextLong()).thenReturn(1L);
@@ -151,7 +151,7 @@ class IteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void remove__iteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void remove__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new IteratorView<>(iterator, forwardingType);
 

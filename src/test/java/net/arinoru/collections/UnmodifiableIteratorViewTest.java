@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
 class UnmodifiableIteratorViewTest {
     @Test
-    public void forEachRemaining__pureUnmodifiableIteratorView__forwardsRequest() {
+    public void forEachRemaining__pureView__forwardsRequest() {
         var action = (Consumer<Object>) mock(Consumer.class);
         var iterator = mock(Iterator.class);
         var cut = new UnmodifiableIteratorView<>(iterator, ForwardingType.PURE);
@@ -30,7 +30,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void forEachRemaining__shallowOrMinimalUnmodifiableIteratorView__processesRequest(ForwardingType forwardingType) {
+    public void forEachRemaining__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
         var action = (Consumer<Object>) mock(Consumer.class);
         var iterator = mock(Iterator.class);
         var cut = new UnmodifiableIteratorView<>(iterator, forwardingType);
@@ -50,7 +50,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void hasNext__unmodifiableIteratorView__forwardsRequest(ForwardingType forwardingType) {
+    public void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new UnmodifiableIteratorView<>(iterator, forwardingType);
 
@@ -62,7 +62,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void next__unmodifiableIteratorViewNotBackedByPrimitiveIterator__forwardsRequest(ForwardingType forwardingType) {
+    public void next__anyViewNotBackedByPrimitiveIterator__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new UnmodifiableIteratorView<>(iterator, forwardingType);
         var ob = new Object();
@@ -76,7 +76,7 @@ class UnmodifiableIteratorViewTest {
     }
 
     @Test
-    public void next__pureUnmodifiableIteratorViewBackedByDoubleIterator__forwardsRequest() {
+    public void next__pureViewBackedByDoubleIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableIteratorView<>(iterator, ForwardingType.PURE);
 
@@ -88,7 +88,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalUnmodifiableIteratorViewBackedByDoubleIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByDoubleIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new UnmodifiableIteratorView<Double>(iterator, forwardingType);
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -101,7 +101,7 @@ class UnmodifiableIteratorViewTest {
     }
 
     @Test
-    public void next__pureUnmodifiableIteratorViewBackedByIntIterator__forwardsRequest() {
+    public void next__pureViewBackedByIntIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new UnmodifiableIteratorView<>(iterator, ForwardingType.PURE);
 
@@ -113,7 +113,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalUnmodifiableIteratorViewBackedByIntIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByIntIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfInt.class);
         var cut = new UnmodifiableIteratorView<Integer>(iterator, forwardingType);
         when(iterator.nextInt()).thenReturn(1);
@@ -126,7 +126,7 @@ class UnmodifiableIteratorViewTest {
     }
 
     @Test
-    public void next__pureUnmodifiableIteratorViewBackedByLongIterator__forwardsRequest() {
+    public void next__pureViewBackedByLongIterator__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableIteratorView<>(iterator, ForwardingType.PURE);
 
@@ -138,7 +138,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void next__shallowOrMinimalUnmodifiableIteratorViewBackedByLongIterator__processesRequest(ForwardingType forwardingType) {
+    public void next__shallowOrMinimalViewBackedByLongIterator__processesRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfLong.class);
         var cut = new UnmodifiableIteratorView<Long>(iterator, forwardingType);
         when(iterator.nextLong()).thenReturn(1L);
@@ -152,7 +152,7 @@ class UnmodifiableIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void remove__unmodifiableIteratorView__throwsException(ForwardingType forwardingType) {
+    public void remove__anyView__throwsException(ForwardingType forwardingType) {
         var iterator = mock(Iterator.class);
         var cut = new UnmodifiableIteratorView<>(iterator, forwardingType);
 
