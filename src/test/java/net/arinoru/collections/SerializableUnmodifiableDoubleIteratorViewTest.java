@@ -1,0 +1,196 @@
+package net.arinoru.collections;
+
+import net.arinoru.collections.Views.ForwardingType;
+import net.arinoru.collections.Views.SerializableUnmodifiableDoubleIteratorView;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
+import java.util.PrimitiveIterator;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.*;
+
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
+class SerializableUnmodifiableDoubleIteratorViewTest {
+    @Test
+    public void forEachRemaining_Consumer__pureSerializableUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_Consumer__minimalSerializableUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = (Consumer<Double>) mock(Consumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__pureSerializableUnmodifiableDoubleIteratorView__forwardRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator).forEachRemaining(action);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW);
+        var val1 = Double.valueOf(1.0);
+        var val2 = Double.valueOf(2.0);
+        when(iterator.hasNext()).thenReturn(true, true, false);
+        when(iterator.nextDouble()).thenReturn(val1, val2);
+
+        cut.forEachRemaining(action);
+
+        verify(iterator, times(3)).hasNext();
+        verify(iterator, times(2)).nextDouble();
+        verify(action).accept(val1);
+        verify(action).accept(val2);
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @Test
+    public void forEachRemaining_DoubleConsumer__minimalSerializableUnmodifiableDoubleIteratorView__failsOnNextDoubleInvocation() {
+        var action = mock(DoubleConsumer.class);
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+        when(iterator.hasNext()).thenReturn(true);
+
+        var t = catchThrowable(() -> cut.forEachRemaining(action));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(iterator).hasNext();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(action, iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void hasNext__serializableUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+
+        cut.hasNext();
+
+        verify(iterator).hasNext();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__pureSerializableUnmodifiableDoubleIteratorView__forwardsRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.PURE);
+
+        cut.next();
+
+        verify(iterator).next();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__shallowSerializableUnmodifiableDoubleIteratorView__processesRequest() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.SHALLOW));
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.next();
+
+        assertThat(result).isEqualTo(Double.valueOf(1.0));
+        verify(iterator).nextDouble();
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void next__minimalSerializableUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = spy(new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL));
+
+        var t = catchThrowable(cut::next);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void nextDouble__pureOrShallowSerializableUnmodifiableDoubleIteratorView__forwardsRequest(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+        when(iterator.nextDouble()).thenReturn(1.0);
+
+        var result = cut.nextDouble();
+
+        assertThat(result).isEqualTo(1.0);
+        verify(iterator).nextDouble();
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @Test
+    public void nextDouble__minimalSerializableUnmodifiableDoubleIteratorView__throwsException() {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::nextDouble);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+
+    @ParameterizedTest
+    @EnumSource(ForwardingType.class)
+    public void remove__serializableUnmodifiableDoubleIteratorView__throwsException(ForwardingType forwardingType) {
+        var iterator = mock(PrimitiveIterator.OfDouble.class);
+        var cut = new SerializableUnmodifiableDoubleIteratorView(iterator, forwardingType);
+
+        var t = catchThrowable(cut::remove);
+
+        assertThat(t).isInstanceOf(UnsupportedOperationException.class);
+        verifyNoMoreInteractions(iterator);
+    }
+}
