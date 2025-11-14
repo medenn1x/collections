@@ -7,11 +7,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
@@ -3011,19 +3009,15 @@ class ViewsTest {
     @Test
     public void parallelStream__shallowCollectionView__processesRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
-        var iterator = (Iterator<Object>) mock(Iterator.class);
         var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
-        var ob1 = new Object();
-        var ob2 = new Object();
+        var obs = new Object[] { new Object(), new Object() };
         when(collection.size()).thenReturn(2);
-        when(collection.iterator()).thenReturn(iterator);
-        when(iterator.hasNext()).thenReturn(true, true, false);
-        when(iterator.next()).thenReturn(ob1, ob2);
+        when(collection.iterator()).thenReturn(Arrays.stream(obs).iterator());
 
         var stream = cut.parallelStream();
         var result = stream.toList();
 
-        assertThat(result).containsExactly(ob1, ob2);
+        assertThat(result).containsExactly(obs);
     }
 
     @Test
@@ -3251,5 +3245,154 @@ class ViewsTest {
         assertThat(t).isInstanceOf(IllegalStateException.class);
         verify(cut).iterator();
         verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    public void stream__pureCollectionView__forwardsRequest() {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var stream = (Stream<Object>) mock(Stream.class);
+        var cut = new CollectionView<>(collection, ForwardingType.PURE);
+        when(collection.stream()).thenReturn(stream);
+
+        var result = cut.stream();
+
+        assertThat(result).isSameAs(stream);
+        verify(collection).stream();
+        verifyNoMoreInteractions(collection, stream);
+    }
+
+    @Test
+    public void stream__shallowCollectionView__processesRequest() {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
+        var obs = new Object[] { new Object(), new Object() };
+        when(collection.size()).thenReturn(2);
+        when(collection.iterator()).thenReturn(Arrays.stream(obs).iterator());
+
+        var stream = cut.stream();
+        var result = stream.toList();
+
+        assertThat(result).containsExactly(obs);
+    }
+
+    @Test
+    public void stream__minimalCollectionView__failsOnTerminalOperation() {
+        // Note: While the behavior required by this test may seem strange on
+        // balance, it is in fact useful behavior. The returned stream behaves
+        // correctly for a collection-backed stream, and fails on terminal
+        // operation only because the view has not correctly implemented the
+        // iterator method. A properly-designed minimal view should override
+        // the iterator method, avoiding this failure.
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = spy(new CollectionView<>(collection, ForwardingType.MINIMAL));
+
+        var stream = cut.stream();
+        var t = catchThrowable(stream::count);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).spliterator();
+        verify(cut).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void toArray__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var arr = new Object[0];
+        var cut = new CollectionView<>(collection, forwardingType);
+        when(collection.toArray()).thenReturn(arr);
+
+        var result = cut.toArray();
+
+        assertThat(result).isSameAs(arr);
+        verify(collection).toArray();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    public void toArray__minimalCollectionView__throwsException() {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(cut::toArray);
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    public void toArray_IntFunction__pureCollectionView__forwardsRequest() {
+        var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, ForwardingType.PURE);
+        var arr = new Object[0];
+        when(collection.toArray(intFunction)).thenReturn(arr);
+
+        var result = cut.toArray(intFunction);
+
+        assertThat(result).isSameAs(arr);
+        verify(collection).toArray(intFunction);
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    public void toArray_IntFunction__shallowCollectionView__processesRequest() {
+        var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
+        var arr = new Object[0];
+        when(intFunction.apply(0)).thenReturn(arr);
+        when(collection.toArray(arr)).thenReturn(arr);
+
+        var result = cut.toArray(intFunction);
+
+        assertThat(result).isSameAs(arr);
+        verify(collection).toArray(arr);
+        verify(intFunction).apply(0);
+        verifyNoMoreInteractions(collection, intFunction);
+    }
+
+    @Test
+    public void toArray_IntFunction__minimalCollectionView__failsOnToArray_TArray() {
+        var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = spy(new CollectionView<>(collection, ForwardingType.MINIMAL));
+        var arr = new Object[0];
+        when(intFunction.apply(0)).thenReturn(arr);
+
+        var t = catchThrowable(() -> cut.toArray(intFunction));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verify(cut).toArray(arr);
+        verify(intFunction).apply(0);
+        verifyNoMoreInteractions(collection, intFunction);
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"PURE","SHALLOW"})
+    public void toArray_TArray__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, forwardingType);
+        var arr = new Object[0];
+        when(collection.toArray(arr)).thenReturn(arr);
+
+        var result = cut.toArray(arr);
+
+        assertThat(result).isSameAs(arr);
+        verify(collection).toArray(arr);
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    public void toArray_TArray__minimalCollectionView__throwsException() {
+        var collection = (Collection<Object>) mock(Collection.class);
+        var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
+        var arr = new Object[0];
+
+        var t = catchThrowable(() -> cut.toArray(arr));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(collection);
     }
 }
