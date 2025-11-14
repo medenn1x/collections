@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings({"unchecked","ResultOfMethodCallIgnored"})
 class DoubleIteratorViewTest {
     @Test
-    public void forEachRemaining_Consumer__pureView__forwardsRequest() {
+    void forEachRemaining_Consumer__pureView__forwardsRequest() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.PURE);
@@ -29,7 +29,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__shallowView__processesRequest() {
+    void forEachRemaining_Consumer__shallowView__processesRequest() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.SHALLOW);
@@ -48,7 +48,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_Consumer__minimalView__failsOnNextDoubleInvocation() {
+    void forEachRemaining_Consumer__minimalView__failsOnNextDoubleInvocation() {
         var action = (Consumer<Double>) mock(Consumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
@@ -63,7 +63,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__pureView__forwardRequest() {
+    void forEachRemaining_DoubleConsumer__pureView__forwardRequest() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.PURE);
@@ -75,7 +75,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__shallowView__processesRequest() {
+    void forEachRemaining_DoubleConsumer__shallowView__processesRequest() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.SHALLOW);
@@ -94,7 +94,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void forEachRemaining_DoubleConsumer__minimalView__failsOnNextDoubleInvocation() {
+    void forEachRemaining_DoubleConsumer__minimalView__failsOnNextDoubleInvocation() {
         var action = mock(DoubleConsumer.class);
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
@@ -110,7 +110,7 @@ class DoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
+    void hasNext__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, forwardingType);
 
@@ -121,7 +121,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void next__pureView__forwardsRequest() {
+    void next__pureView__forwardsRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.PURE);
 
@@ -132,7 +132,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void next__shallowView__processesRequest() {
+    void next__shallowView__processesRequest() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new DoubleIteratorView(iterator, ForwardingType.SHALLOW));
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -146,7 +146,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void next__minimalView__throwsException() {
+    void next__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = spy(new DoubleIteratorView(iterator, ForwardingType.MINIMAL));
 
@@ -159,7 +159,7 @@ class DoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void nextDouble__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
+    void nextDouble__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, forwardingType);
         when(iterator.nextDouble()).thenReturn(1.0);
@@ -172,7 +172,7 @@ class DoubleIteratorViewTest {
     }
 
     @Test
-    public void nextDouble__minimalView__throwsException() {
+    void nextDouble__minimalView__throwsException() {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, ForwardingType.MINIMAL);
 
@@ -184,7 +184,7 @@ class DoubleIteratorViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void remove__anyView__forwardsRequest(ForwardingType forwardingType) {
+    void remove__anyView__forwardsRequest(ForwardingType forwardingType) {
         var iterator = mock(PrimitiveIterator.OfDouble.class);
         var cut = new DoubleIteratorView(iterator, forwardingType);
 
