@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class CollectionViewTest {
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void add__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void add__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         var ob = new Object();
@@ -37,7 +37,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void add__minimalCollectionView__throwsException() {
+    public void add__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
         var ob = new Object();
@@ -50,7 +50,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void addAll__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void addAll__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, forwardingType);
@@ -62,7 +62,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void addAll__minimalCollectionView__throwsException() {
+    public void addAll__minimalView__throwsException() {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, ForwardingType.MINIMAL);
@@ -75,7 +75,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void clear__collectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void clear__anyView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
 
@@ -87,7 +87,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void contains__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void contains__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         var ob = new Object();
@@ -101,7 +101,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void contains__minimalCollectionView__throwsException() {
+    public void contains__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
         var ob = new Object();
@@ -114,7 +114,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void containsAll__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void containsAll__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, forwardingType);
@@ -128,7 +128,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void containsAll__minimalCollectionView__throwsException() {
+    public void containsAll__minimalView__throwsException() {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, ForwardingType.MINIMAL);
@@ -140,7 +140,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void equals__pureCollectionView__forwardsRequest() {
+    public void equals__pureView__forwardsRequest() {
         // Note: This is a contrived test to validate PURE forwarding rules on
         // a view. In general, sets should not be used to back a pure collection
         // view, as it will create a view which violates the symmetric property
@@ -156,7 +156,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void equals__shallowOrMinimalCollectionView__processesRequest(ForwardingType forwardingType) {
+    public void equals__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
         var collection = Collections.emptySet();
         var cut = new CollectionView<>(collection, forwardingType);
 
@@ -167,7 +167,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void forEach__pureCollectionView__forwardsRequest() {
+    public void forEach__pureView__forwardsRequest() {
         var consumer = (Consumer<Object>) mock(Consumer.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -179,7 +179,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void forEach__shallowCollectionView__processesRequest() {
+    public void forEach__shallowView__processesRequest() {
         var consumer = (Consumer<Object>) mock(Consumer.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var iterator = (Iterator<Object>) mock(Iterator.class);
@@ -201,7 +201,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void forEach__minimalCollectionView__failsOnIteratorInvocation() {
+    public void forEach__minimalView__failsOnIteratorInvocation() {
         var consumer = (Consumer<Object>) mock(Consumer.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = spy(new CollectionView<>(collection, ForwardingType.MINIMAL));
@@ -214,7 +214,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void hashCode__pureCollectionView__forwardsRequest() {
+    public void hashCode__pureView__forwardsRequest() {
         // Note: This is a contrived test to validate PURE forwarding rules on
         // a view. In general, sets should not be used to back a pure collection
         // view, as it will create a view which violates the symmetric property
@@ -229,7 +229,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
-    public void hashCode__shallowOrMinimalCollectionView__processesRequest(ForwardingType forwardingType) {
+    public void hashCode__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
         var collection = Set.of();
         var cut = new CollectionView<>(collection, forwardingType);
 
@@ -245,7 +245,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void isEmpty__collectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void isEmpty__anyView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         when(collection.isEmpty()).thenReturn(true);
@@ -259,7 +259,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void iterator__pureOrShallowCollectionView__forwardsRequestWithoutMasking(ForwardingType forwardingType) {
+    public void iterator__pureOrShallowView__forwardsRequestWithoutMasking(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var iterator = (Iterator<Object>) mock(Iterator.class);
         var cut = new CollectionView<>(collection, forwardingType);
@@ -271,7 +271,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void iterator__minimalCollectionView__throwsException() {
+    public void iterator__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
 
@@ -282,7 +282,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void parallelStream__pureCollectionView__forwardsRequest() {
+    public void parallelStream__pureView__forwardsRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
         var stream = (Stream<Object>) mock(Stream.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -296,7 +296,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void parallelStream__shallowCollectionView__processesRequest() {
+    public void parallelStream__shallowView__processesRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
         var obs = new Object[] { new Object(), new Object() };
@@ -310,7 +310,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void parallelStream__minimalCollectionView__failsOnTerminalOperation() {
+    public void parallelStream__minimalView__failsOnTerminalOperation() {
         // Note: While the behavior required by this test may seem strange on
         // balance, it is in fact useful behavior. The returned stream behaves
         // correctly for a collection-backed stream, and fails on terminal
@@ -331,7 +331,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void remove__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void remove__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         var ob = new Object();
@@ -345,7 +345,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void remove__minimalCollectionView__throwsException() {
+    public void remove__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
         var ob = new Object();
@@ -358,7 +358,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void removeAll__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void removeAll__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, forwardingType);
@@ -372,7 +372,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void removeAll__minimalCollectionView__throwsException() {
+    public void removeAll__minimalView__throwsException() {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, ForwardingType.MINIMAL);
@@ -384,7 +384,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void removeIf__pureCollectionView__forwardsRequest() {
+    public void removeIf__pureView__forwardsRequest() {
         var predicate = (Predicate<Object>) mock(Predicate.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -398,7 +398,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void removeIf__shallowCollectionView__processesRequest() {
+    public void removeIf__shallowView__processesRequest() {
         var predicate = (Predicate<Object>) mock(Predicate.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var iterator = (Iterator<Object>) mock(Iterator.class);
@@ -424,7 +424,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void removeIf__minimalCollectionView__throwsException() {
+    public void removeIf__minimalView__throwsException() {
         var predicate = (Predicate<Object>) mock(Predicate.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = spy(new CollectionView<>(collection, ForwardingType.MINIMAL));
@@ -438,7 +438,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void retainAll__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void retainAll__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, forwardingType);
@@ -452,7 +452,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void retainAll__minimalCollectionView__throwsException() {
+    public void retainAll__minimalView__throwsException() {
         var collection1 = (Collection<Object>) mock(Collection.class);
         var collection2 = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection1, ForwardingType.MINIMAL);
@@ -465,7 +465,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(ForwardingType.class)
-    public void size__collectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void size__anyView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         when(collection.size()).thenReturn(123);
@@ -478,7 +478,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void spliterator__pureCollectionView__forwardsRequest() {
+    public void spliterator__pureView__forwardsRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
         var spliterator = (Spliterator<Object>) mock(Spliterator.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -492,7 +492,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void spliterator__shallowCollectionView__processesRequest() {
+    public void spliterator__shallowView__processesRequest() {
         var consumer = (Consumer<Object>) mock(Consumer.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var iterator = (Iterator<Object>) mock(Iterator.class);
@@ -516,7 +516,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void spliterator__minimalCollectionView__failsOnBind() {
+    public void spliterator__minimalView__failsOnBind() {
         // Note: While the behavior required by this test may seem strange on
         // balance, it is in fact useful behavior. The returned spliterator
         // behaves correctly for a collection-backed spliterator, and fails
@@ -537,7 +537,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void stream__pureCollectionView__forwardsRequest() {
+    public void stream__pureView__forwardsRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
         var stream = (Stream<Object>) mock(Stream.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -551,7 +551,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void stream__shallowCollectionView__processesRequest() {
+    public void stream__shallowView__processesRequest() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
         var obs = new Object[] { new Object(), new Object() };
@@ -565,7 +565,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void stream__minimalCollectionView__failsOnTerminalOperation() {
+    public void stream__minimalView__failsOnTerminalOperation() {
         // Note: While the behavior required by this test may seem strange on
         // balance, it is in fact useful behavior. The returned stream behaves
         // correctly for a collection-backed stream, and fails on terminal
@@ -586,7 +586,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void toArray__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void toArray__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var arr = new Object[0];
         var cut = new CollectionView<>(collection, forwardingType);
@@ -600,7 +600,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void toArray__minimalCollectionView__throwsException() {
+    public void toArray__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
 
@@ -611,7 +611,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void toArray_IntFunction__pureCollectionView__forwardsRequest() {
+    public void toArray_IntFunction__pureView__forwardsRequest() {
         var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
@@ -626,7 +626,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void toArray_IntFunction__shallowCollectionView__processesRequest() {
+    public void toArray_IntFunction__shallowView__processesRequest() {
         var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.SHALLOW);
@@ -643,7 +643,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void toArray_IntFunction__minimalCollectionView__failsOnToArray_TArray() {
+    public void toArray_IntFunction__minimalView__failsOnToArray_TArray() {
         var intFunction = (IntFunction<Object[]>) mock(IntFunction.class);
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = spy(new CollectionView<>(collection, ForwardingType.MINIMAL));
@@ -660,7 +660,7 @@ class CollectionViewTest {
 
     @ParameterizedTest
     @EnumSource(names = {"PURE","SHALLOW"})
-    public void toArray_TArray__pureOrShallowCollectionView__forwardsRequest(ForwardingType forwardingType) {
+    public void toArray_TArray__pureOrShallowView__forwardsRequest(ForwardingType forwardingType) {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, forwardingType);
         var arr = new Object[0];
@@ -674,7 +674,7 @@ class CollectionViewTest {
     }
 
     @Test
-    public void toArray_TArray__minimalCollectionView__throwsException() {
+    public void toArray_TArray__minimalView__throwsException() {
         var collection = (Collection<Object>) mock(Collection.class);
         var cut = new CollectionView<>(collection, ForwardingType.MINIMAL);
         var arr = new Object[0];
