@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterator;
@@ -143,9 +142,9 @@ class CollectionViewTest {
     public void equals__pureView__forwardsRequest() {
         // Note: This is a contrived test to validate PURE forwarding rules on
         // a view. In general, sets should not be used to back a pure collection
-        // view, as it will create a view which violates the symmetric property
-        // of algebra.
-        var collection = Collections.emptySet();
+        // view (unless that view also implements Set), as it will create a view
+        // which violates the symmetric property of algebra.
+        var collection = Set.of();
         var cut = new CollectionView<>(collection, ForwardingType.PURE);
 
         @SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -157,7 +156,7 @@ class CollectionViewTest {
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
     public void equals__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
-        var collection = Collections.emptySet();
+        var collection = Set.of();
         var cut = new CollectionView<>(collection, forwardingType);
 
         @SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -217,8 +216,8 @@ class CollectionViewTest {
     public void hashCode__pureView__forwardsRequest() {
         // Note: This is a contrived test to validate PURE forwarding rules on
         // a view. In general, sets should not be used to back a pure collection
-        // view, as it will create a view which violates the symmetric property
-        // of algebra.
+        // view (unless that view also implements Set), as it will create a view
+        // which violates the symmetric property of algebra.
         var collection = Set.of(1);
         var cut = new CollectionView<Integer>(collection, ForwardingType.PURE);
 
