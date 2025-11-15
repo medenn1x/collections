@@ -963,7 +963,7 @@ class Views {
         public boolean addDouble(double d) {
             checkNotUnmodifiable(this);
             return forwarder().predicateOp(delegate -> delegate.addDouble(d),
-                    () -> OfDouble.super.containsDouble(d));
+                    () -> OfDouble.super.addDouble(d));
         }
 
         @Override
