@@ -888,7 +888,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the specified
          * collection to determine whether it is an instance of {@link OfDouble},
          * and if so passes it to {@link #removeAll(OfDouble)}; otherwise it is
-         * equivalent to {@code removeIf(c::contains)}.</p>
+         * equivalent to {@code removeIfDouble(c::contains)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -900,7 +900,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean removeAll(Collection<?> c) {
             if (c instanceof OfDouble ofDouble)
                 return removeAll(ofDouble);
-            return removeIf((DoublePredicate) c::contains);
+            return removeIfDouble(c::contains);
         }
 
         /**
