@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.InstanceOfAssertFactories.iterator;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("unchecked")
