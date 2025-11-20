@@ -1644,6 +1644,12 @@ class Views {
         }
 
         @Override
+        public Stream<E> parallelStream() {
+            return forwarder().boxedOp(Set::parallelStream,
+                    Set.super::parallelStream);
+        }
+
+        @Override
         public boolean remove(Object o) {
             checkNotUnmodifiable(this);
             return forwarder().predicateOp(delegate -> delegate.remove(o));
@@ -1677,7 +1683,13 @@ class Views {
 
         @Override
         public Spliterator<E> spliterator() {
-            return forwarder().boxedOp(Set::spliterator);
+            return forwarder().boxedOp(Set::spliterator,
+                    Set.super::spliterator);
+        }
+
+        @Override
+        public Stream<E> stream() {
+            return forwarder().boxedOp(Set::stream, Set.super::stream);
         }
 
         @Override
@@ -1774,6 +1786,13 @@ class Views {
         }
 
         @Override
+        @SuppressWarnings("EqualsDoesntCheckParameterClass")
+        public boolean equals(Object o) {
+            return forwarder().predicateOp(delegate -> delegate.equals(o),
+                    () -> PrimitiveCollections.equals(this, o));
+        }
+
+        @Override
         public void forEach(Consumer<? super T> action) {
             forwarder().voidOp(delegate -> delegate.forEach(action),
                     () -> PrimitiveSet.super.forEach(action));
@@ -1783,6 +1802,12 @@ class Views {
         public void forEach(T_CONS action) {
             forwarder().voidOp(delegate -> delegate.forEach(action),
                     () -> PrimitiveSet.super.forEach(action));
+        }
+
+        @Override
+        public int hashCode() {
+            return forwarder().intOp(PrimitiveSet::hashCode,
+                    () -> PrimitiveCollections.hashCode(this));
         }
 
         @Override
@@ -1832,7 +1857,8 @@ class Views {
         @Override
         public boolean add(Double t) {
             checkNotUnmodifiable(this);
-            return forwarder().predicateOp(delegate -> delegate.add(t));
+            return forwarder().predicateOp(delegate -> delegate.add(t),
+                    () -> OfDouble.super.add(t));
         }
 
         @Override
