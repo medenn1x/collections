@@ -718,12 +718,6 @@ class Views {
         }
 
         @Override
-        public boolean equals(Object o) {
-            return forwarder().predicateOp(delegate -> delegate.equals(o),
-                    () -> super.equals(o));
-        }
-
-        @Override
         public void forEach(Consumer<? super E> action) {
             forwarder().voidOp(delegate -> delegate.forEach(action),
                     () -> Collection.super.forEach(action));
@@ -887,6 +881,23 @@ class Views {
         public void clear() {
             checkNotUnmodifiable(this);
             forwarder().voidOp(Collection::clear, PrimitiveCollection.super::clear);
+        }
+
+        @Override
+        public void forEach(Consumer<? super T> action) {
+            forwarder().voidOp(delegate -> delegate.forEach(action),
+                    () -> PrimitiveCollection.super.forEach(action));
+        }
+
+        @Override
+        public void forEach(T_CONS action) {
+            forwarder().voidOp(delegate -> delegate.forEach(action),
+                    () -> PrimitiveCollection.super.forEach(action));
+        }
+
+        @Override
+        public int hashCode() {
+            return forwarder().intOp(Object::hashCode, super::hashCode);
         }
 
         @Override
