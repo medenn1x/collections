@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -138,31 +137,23 @@ class SerializableCollectionViewTest {
         verifyNoMoreInteractions(collection1, collection2);
     }
 
-    @Test
-    void equals__pureView__forwardsRequest() {
-        // Note: This is a contrived test to validate PURE forwarding rules on
-        // a view. In general, sets should not be used to back a pure collection
-        // view (unless that view also implements Set), as it will create a view
-        // which violates the symmetric property of algebra.
-        var collection = Set.of();
-        var cut = new SerializableCollectionView<>(collection, ForwardingType.PURE);
-
-        @SuppressWarnings("EqualsBetweenInconvertibleTypes")
-        var result = cut.equals(collection);
-
-        assertThat(result).isTrue();
-    }
-
     @ParameterizedTest
-    @EnumSource(names = {"SHALLOW","MINIMAL"})
-    void equals__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
-        var collection = Set.of();
+    @EnumSource
+    void equals__anyView__processesRequest(ForwardingType forwardingType) {
+        // Note: Because a mock cannot verify behavior connected with the equals
+        // method, it is necessary to use a custom class to validate the call.
+        // Note additionally that equals is a special case for
+        // base collection views in that even in a PURE view they do not forward
+        // the call; if there is a good reason for forwarding equals, it must be
+        // overridden by a subclass.
+        var collection = new EqualsAndHashCodeTestContainers.Collection<>(new Object());
         var cut = new SerializableCollectionView<>(collection, forwardingType);
 
         @SuppressWarnings("EqualsBetweenInconvertibleTypes")
         var result = cut.equals(collection);
 
         assertThat(result).isFalse();
+        assertThat(collection.calledEquals()).isFalse();
     }
 
     @Test
@@ -214,32 +205,31 @@ class SerializableCollectionViewTest {
 
     @Test
     void hashCode__pureView__forwardsRequest() {
-        // Note: This is a contrived test to validate PURE forwarding rules on
-        // a view. In general, sets should not be used to back a pure collection
-        // view (unless that view also implements Set), as it will create a view
-        // which violates the symmetric property of algebra.
-        var collection = Set.of(1);
-        var cut = new SerializableCollectionView<Integer>(collection, ForwardingType.PURE);
+        // Note: Because a mock cannot verify behavior connected with the hashCode
+        // method, it is necessary to use a custom class to validate the call.
+        var collection = new EqualsAndHashCodeTestContainers.Collection<>(new Object());
+        var cut = new SerializableCollectionView<>(collection, ForwardingType.PURE);
 
         var result = cut.hashCode();
 
-        assertThat(result).isEqualTo(1);
+        // Note: must check call status before obtaining hash code
+        assertThat(collection.calledHashCode()).isTrue();
+        assertThat(result).isEqualTo(collection.hashCode());
     }
 
     @ParameterizedTest
     @EnumSource(names = {"SHALLOW","MINIMAL"})
     void hashCode__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
-        var collection = Set.of();
+        // Note: Because a mock cannot verify behavior connected with the hashCode
+        // method, it is necessary to use a custom class to validate the call.
+        var collection = new EqualsAndHashCodeTestContainers.Collection<>(new Object());
         var cut = new SerializableCollectionView<>(collection, forwardingType);
 
-        var result = cut.hashCode();
+        //noinspection ResultOfMethodCallIgnored
+        cut.hashCode();
 
-        // Note: An empty set should have a hash code of 0. It is statistically
-        // unlikely that the class under test will have a hash code of zero, but
-        // it may not be guaranteed. Given the limits of Mockito, it is not
-        // possible to test the forwarding behavior directly. Should this test
-        // prove to be subject to intermittent failures, it should be deleted.
-        assertThat(result).isNotEqualTo(collection.hashCode());
+        // Note: must check call status before obtaining hash code
+        assertThat(collection.calledHashCode()).isFalse();
     }
 
     @ParameterizedTest

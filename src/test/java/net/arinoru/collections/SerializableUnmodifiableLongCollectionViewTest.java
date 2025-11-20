@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import java.util.Collection;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import java.util.function.LongPredicate;
 import java.util.function.IntFunction;
@@ -297,6 +298,131 @@ class SerializableUnmodifiableLongCollectionViewTest {
         assertThat(t).isInstanceOf(IllegalStateException.class);
         verify(cut).iterator();
         verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @EnumSource
+    void equals__anyView__processesRequest(ForwardingType forwardingType) {
+        // Note: Because a mock cannot verify behavior connected with the equals
+        // method, it is necessary to use a custom class to validate the call.
+        // Note additionally that equals is a special case for
+        // base collection views in that even in a PURE view they do not forward
+        // the call; if there is a good reason for forwarding equals, it must be
+        // overridden by a subclass.
+        var collection = new EqualsAndHashCodeTestContainers.LongCollection(1L);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, forwardingType);
+
+        @SuppressWarnings("EqualsBetweenInconvertibleTypes")
+        var result = cut.equals(collection);
+
+        assertThat(result).isFalse();
+        assertThat(collection.calledEquals()).isFalse();
+    }
+
+    @Test
+    void forEach_Consumer__pureView__forwardsRequest() {
+        var consumer = (Consumer<Long>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.PURE);
+
+        cut.forEach(consumer);
+
+        verify(collection).forEach(consumer);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void forEach_Consumer__shallowView__processesRequest() {
+        var consumer = (Consumer<Long>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.SHALLOW);
+        when(collection.iterator()).thenReturn(LongStream.of(1L).iterator());
+
+        cut.forEach(consumer);
+
+        verify(collection).iterator();
+        verify(collection).size();
+        verify(consumer).accept(1L);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void forEach_Consumer__minimalView__throwsException() {
+        var consumer = (Consumer<Long>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(() -> cut.forEach(consumer));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void forEach_LongConsumer__pureView__forwardsRequest() {
+        var consumer = mock(LongConsumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.PURE);
+
+        cut.forEach(consumer);
+
+        verify(collection).forEach(consumer);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void forEach_LongConsumer__shallowView__processesRequest() {
+        var consumer = mock(LongConsumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.SHALLOW);
+        when(collection.iterator()).thenReturn(LongStream.of(1L).iterator());
+
+        cut.forEach(consumer);
+
+        verify(collection).iterator();
+        verify(collection).size();
+        verify(consumer).accept(1L);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void forEach_LongConsumer__minimalView__throwsException() {
+        var consumer = mock(LongConsumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.MINIMAL);
+
+        var t = catchThrowable(() -> cut.forEach(consumer));
+
+        assertThat(t).isInstanceOf(IllegalStateException.class);
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void hashCode__pureView__forwardsRequest() {
+        // Note: Because a mock cannot verify behavior connected with the hashCode
+        // method, it is necessary to use a custom class to validate the call.
+        var collection = new EqualsAndHashCodeTestContainers.LongCollection(1L);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, ForwardingType.PURE);
+
+        var result = cut.hashCode();
+
+        // Must check call status before getting hash code for comparison
+        assertThat(collection.calledHashCode()).isTrue();
+        assertThat(result).isEqualTo(collection.hashCode());
+    }
+
+    @ParameterizedTest
+    @EnumSource(names = {"SHALLOW","MINIMAL"})
+    void hashCode__shallowOrMinimalView__processesRequest(ForwardingType forwardingType) {
+        // Note: Because a mock cannot verify behavior connected with the hashCode
+        // method, it is necessary to use a custom class to validate the call.
+        var collection = new EqualsAndHashCodeTestContainers.LongCollection(1L);
+        var cut = new SerializableUnmodifiableLongCollectionView(collection, forwardingType);
+
+        //noinspection ResultOfMethodCallIgnored
+        cut.hashCode();
+
+        assertThat(collection.calledHashCode()).isFalse();
     }
 
     @Test
