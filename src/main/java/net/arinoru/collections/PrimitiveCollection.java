@@ -915,7 +915,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * exception <em>must</em> be thrown to preserve the invariant that the
          * collections will contain no elements in common after the call.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(c::containsDouble)}.</p>
+         * {@code removeIfDouble(c::containsDouble)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -923,7 +923,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @throws NullPointerException if the specified collection is null
          */
         default boolean removeAll(OfDouble c) {
-            return removeIf((DoublePredicate) c::containsDouble);
+            return removeIfDouble(c::containsDouble);
         }
 
         /**
@@ -1038,7 +1038,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the collection
          * to determine if it is an instance of {@code OfDouble}, in which case it
          * passes it to {@link #retainAll(OfDouble)}; otherwise it is equivalent to
-         * {@code removeIf(t -> !c.contains(t))}.</p>
+         * {@code removeIfDouble(t -> !c.contains(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -1052,7 +1052,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfDouble ofDouble)
                 return retainAll(ofDouble);
-            return removeIf(((DoublePredicate) c::contains).negate());
+            return removeIfDouble(((DoublePredicate) c::contains).negate());
         }
 
         /**
@@ -1061,7 +1061,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * this collection all of its elements that are not contained in the
          * specified collection.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(t -> !c.containsDouble(t))}.</p>
+         * {@code removeIfDouble(t -> !c.containsDouble(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -1070,7 +1070,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @see #containsDouble(double)
          */
         default boolean retainAll(OfDouble c) {
-            return removeIf(((DoublePredicate) c::containsDouble).negate());
+            return removeIfDouble(((DoublePredicate) c::containsDouble).negate());
         }
 
         /**
@@ -1448,7 +1448,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the specified
          * collection to determine whether it is an instance of {@link OfInt},
          * and if so passes it to {@link #removeAll(OfInt)}; otherwise it is
-         * equivalent to {@code removeIf(c::contains)}.</p>
+         * equivalent to {@code removeIfInt(c::contains)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -1461,7 +1461,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean removeAll(Collection<?> c) {
             if (c instanceof OfInt ofInt)
                 return removeAll(ofInt);
-            return removeIf((IntPredicate) c::contains);
+            return removeIfInt(c::contains);
         }
 
         /**
@@ -1476,7 +1476,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * exception <em>must</em> be thrown to preserve the invariant that the
          * collections will contain no elements in common after the call.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(c::containsInt)}.</p>
+         * {@code removeIfInt(c::containsInt)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -1484,7 +1484,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @throws NullPointerException if this collection is null
          */
         default boolean removeAll(OfInt c) {
-            return removeIf((IntPredicate) c::containsInt);
+            return removeIfInt(c::containsInt);
         }
 
         /**
@@ -1599,7 +1599,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the collection
          * to determine if it is an instance of {@code OfInt}, in which case it
          * passes it to {@link #retainAll(OfInt)}; otherwise it is equivalent to
-         * {@code removeIf(t -> !c.contains(t))}.</p>
+         * {@code removeIfInt(t -> !c.contains(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -1613,7 +1613,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfInt ofInt)
                 return retainAll(ofInt);
-            return removeIf(((IntPredicate) c::contains).negate());
+            return removeIfInt(((IntPredicate) c::contains).negate());
         }
 
         /**
@@ -1622,7 +1622,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * this collection all of its elements that are not contained in the
          * specified collection.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(t -> !c.containsInt(t))}.</p>
+         * {@code removeIfInt(t -> !c.containsInt(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -1631,7 +1631,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @see #containsInt(int)
          */
         default boolean retainAll(OfInt c) {
-            return removeIf(((IntPredicate) c::containsInt).negate());
+            return removeIfInt(((IntPredicate) c::containsInt).negate());
         }
 
         /**
@@ -2009,7 +2009,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the specified
          * collection to determine whether it is an instance of {@link OfLong},
          * and if so passes it to {@link #removeAll(OfLong)}; otherwise it is
-         * equivalent to {@code removeIf(c::contains)}.</p>
+         * equivalent to {@code removeIfLong(c::contains)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -2022,7 +2022,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean removeAll(Collection<?> c) {
             if (c instanceof OfLong ofLong)
                 return removeAll(ofLong);
-            return removeIf((LongPredicate) c::contains);
+            return removeIfLong(c::contains);
         }
 
         /**
@@ -2037,7 +2037,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * exception <em>must</em> be thrown to preserve the invariant that the
          * collections will contain no elements in common after the call.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(c::containsLong)}.</p>
+         * {@code removeIfLong(c::containsLong)}.</p>
          * @param c collection containing elements to be removed from this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code removeAll} operation
@@ -2045,7 +2045,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @throws NullPointerException if this collection is null
          */
         default boolean removeAll(OfLong c) {
-            return removeIf((LongPredicate) c::containsLong);
+            return removeIfLong(c::containsLong);
         }
 
         /**
@@ -2160,7 +2160,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @implSpec <p>The default implementation checks the runtime type of the collection
          * to determine if it is an instance of {@code OfLong}, in which case it
          * passes it to {@link #retainAll(OfLong)}; otherwise it is equivalent to
-         * {@code removeIf(t -> !c.contains(t))}.</p>
+         * {@code removeIfLong(t -> !c.contains(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -2174,7 +2174,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         default boolean retainAll(Collection<?> c) {
             if (c instanceof OfLong ofLong)
                 return retainAll(ofLong);
-            return removeIf(((LongPredicate) c::contains).negate());
+            return removeIfLong(((LongPredicate) c::contains).negate());
         }
 
         /**
@@ -2183,7 +2183,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * this collection all of its elements that are not contained in the
          * specified collection.</p>
          * @implSpec <p>The default implementation is equivalent to
-         * {@code removeIf(t -> !c.containsLong(t))}.</p>
+         * {@code removeIfLong(t -> !c.containsLong(t))}.</p>
          * @param c collection containing elements to be retained in this collection
          * @return {@code true} if this collection changed as a result of the call
          * @throws UnsupportedOperationException if the {@code retainAll} operation is
@@ -2192,7 +2192,7 @@ public interface PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
          * @see #containsLong(long)
          */
         default boolean retainAll(OfLong c) {
-            return removeIf(((LongPredicate) c::containsLong).negate());
+            return removeIfLong(((LongPredicate) c::containsLong).negate());
         }
 
         /**
