@@ -1655,11 +1655,16 @@ public class PrimitiveCollections {
 
         static PrimitiveSet.OfDouble fromCollection(
                 PrimitiveCollection.OfDouble collection) {
-            var arr = collection.toPrimitiveArray();
-            return switch (arr.length) {
+            // TODO: Validate collection class and avoid defensive copy
+            //  for known safe implementations
+            var a = collection.toPrimitiveArray();
+            return switch (a.length) {
                 case 0 -> EmptyDoubleSet.INSTANCE;
-                case 1 -> new DoubleSingleton(arr[0]);
-                default -> new ArrayDoubleSet(validate(arr));
+                case 1 -> new DoubleSingleton(a[0]);
+                default -> {
+                    var arr = Arrays.copyOf(a, a.length);
+                    yield new ArrayDoubleSet(validate(arr));
+                }
             };
         }
 
