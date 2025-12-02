@@ -1321,10 +1321,7 @@ public class PrimitiveCollections {
 
         @Override
         public void forEach(Consumer<? super Double> action) {
-            if (action instanceof DoubleConsumer dc)
-                dc.accept(value);
-            else
-                action.accept(value);
+            action.accept(value);
         }
 
         @Override
