@@ -2,10 +2,11 @@ package net.arinoru.collections;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unchecked","StatementWithEmptyBody"})
 class IntSpliteratorTest {
     @Test
     void estimateSize__always__returnsCollectionSizeAtTimeOfBind() {
@@ -162,7 +164,96 @@ class IntSpliteratorTest {
     }
 
     @Test
-    void tryAdvance__emptyCollection__returnsFalse() {
+    void tryAdvance_IntConsumer__emptyCollection__returnsFalse() {
+        var consumer = mock(IntConsumer.class);
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyIntIterator());
 
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void tryAdvance_IntConsumer__hasElements__processesFirstElement() {
+        var consumer = mock(IntConsumer.class);
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(IntStream.of(
+                1, 2, 3, 4, 5).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_IntConsumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Integer>();
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(IntStream.of(
+                1, 2, 3, 4, 5).iterator());
+
+        while (cut.tryAdvance((IntConsumer) bucket::add));
+
+        assertThat(bucket).containsExactly(1, 2, 3, 4, 5);
+    }
+
+    @Test
+    void tryAdvance_Consumer__emptyCollection__returnsFalse() {
+        var consumer = (Consumer<Integer>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyIntIterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__processesFirstElement() {
+        var consumer = (Consumer<Integer>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(IntStream.of(
+                1, 2, 3, 4, 5).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Integer>();
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        var cut = PrimitiveCollections.intSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(IntStream.of(
+                1, 2, 3, 4, 5).iterator());
+
+        while (cut.tryAdvance((Consumer<Integer>) bucket::add));
+
+        assertThat(bucket).containsExactly(1, 2, 3, 4, 5);
     }
 }

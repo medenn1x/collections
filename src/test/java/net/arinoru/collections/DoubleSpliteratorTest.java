@@ -2,8 +2,10 @@ package net.arinoru.collections;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -13,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unchecked","StatementWithEmptyBody"})
 class DoubleSpliteratorTest {
     @Test
     void estimateSize__always__returnsCollectionSizeAtTimeOfBind() {
@@ -162,7 +165,96 @@ class DoubleSpliteratorTest {
     }
 
     @Test
-    void tryAdvance__emptyCollection__returnsFalse() {
+    void tryAdvance_DoubleConsumer__emptyCollection__returnsFalse() {
+        var consumer = mock(DoubleConsumer.class);
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyDoubleIterator());
 
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_DoubleConsumer__hasElements__processesFirstElement() {
+        var consumer = mock(DoubleConsumer.class);
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(DoubleStream.of(
+                1.0, 2.0, 3.0, 4.0, 5.0).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1.0);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_DoubleConsumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Double>();
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(DoubleStream.of(
+                1.0, 2.0, 3.0, 4.0, 5.0).iterator());
+
+        while (cut.tryAdvance((DoubleConsumer) bucket::add));
+
+        assertThat(bucket).containsExactly(1.0, 2.0, 3.0, 4.0, 5.0);
+    }
+
+    @Test
+    void tryAdvance_Consumer__emptyCollection__returnsFalse() {
+        var consumer = (Consumer<Double>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyDoubleIterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__processesFirstElement() {
+        var consumer = (Consumer<Double>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(DoubleStream.of(
+                1.0, 2.0, 3.0, 4.0, 5.0).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1.0);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection, consumer);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Double>();
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        var cut = PrimitiveCollections.doubleSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(DoubleStream.of(
+                1.0, 2.0, 3.0, 4.0, 5.0).iterator());
+
+        while (cut.tryAdvance((Consumer<Double>) bucket::add));
+
+        assertThat(bucket).containsExactly(1.0, 2.0, 3.0, 4.0, 5.0);
     }
 }

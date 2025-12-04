@@ -2,8 +2,10 @@ package net.arinoru.collections;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
+import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 import java.util.stream.LongStream;
 import java.util.stream.IntStream;
@@ -13,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unchecked","StatementWithEmptyBody"})
 class LongSpliteratorTest {
     @Test
     void estimateSize__always__returnsCollectionSizeAtTimeOfBind() {
@@ -162,7 +165,96 @@ class LongSpliteratorTest {
     }
 
     @Test
-    void tryAdvance__emptyCollection__returnsFalse() {
+    void tryAdvance_LongConsumer__emptyCollection__returnsFalse() {
+        var consumer = mock(LongConsumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyLongIterator());
 
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(consumer, collection);
+    }
+
+    @Test
+    void tryAdvance_LongConsumer__hasElements__processesFirstElement() {
+        var consumer = mock(LongConsumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(LongStream.of(
+                1L, 2L, 3L, 4L, 5L).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1L);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(consumer, collection);
+    }
+
+    @Test
+    void tryAdvance_LongConsumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Long>();
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(LongStream.of(
+                1L, 2L, 3L, 4L, 5L).iterator());
+
+        while (cut.tryAdvance((LongConsumer) bucket::add));
+
+        assertThat(bucket).containsExactly(1L, 2L, 3L, 4L, 5L);
+    }
+
+    @Test
+    void tryAdvance_Consumer__emptyCollection__returnsFalse() {
+        var consumer = (Consumer<Long>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyLongIterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isFalse();
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(consumer, collection);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__processesFirstElement() {
+        var consumer = (Consumer<Long>) mock(Consumer.class);
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(LongStream.of(
+                1L, 2L, 3L, 4L, 5L).iterator());
+
+        var result = cut.tryAdvance(consumer);
+
+        assertThat(result).isTrue();
+        verify(consumer).accept(1L);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(consumer, collection);
+    }
+
+    @Test
+    void tryAdvance_Consumer__hasElements__repeatedInvocationsProcessElementsInOrder() {
+        var bucket = new ArrayList<Long>();
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        var cut = PrimitiveCollections.longSpliterator(collection, 0);
+        when(collection.size()).thenReturn(5);
+        when(collection.iterator()).thenReturn(LongStream.of(
+                1L, 2L, 3L, 4L, 5L).iterator());
+
+        while (cut.tryAdvance((Consumer<Long>) bucket::add));
+
+        assertThat(bucket).containsExactly(1L, 2L, 3L, 4L, 5L);
     }
 }
