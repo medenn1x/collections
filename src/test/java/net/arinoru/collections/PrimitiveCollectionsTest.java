@@ -4,12 +4,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -551,5 +554,443 @@ class PrimitiveCollectionsTest {
         assertThat(result).isEqualTo(expected);
         verify(set).primitiveStream();
         verifyNoMoreInteractions(set);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_doubleArray__comparedToSet__returnedSetIsEqual(int size) {
+        var expected = IntStream.range(0, size).asDoubleStream().boxed()
+                .collect(Collectors.toSet());
+
+        var result = PrimitiveCollections.setOf(IntStream.range(0, size)
+                .asDoubleStream().toArray());
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_doubleCollection__comparedToSet__returnedSetIsEqual(int size) {
+        var values = IntStream.range(0, size).asDoubleStream().toArray();
+        var expected = IntStream.range(0, size).asDoubleStream().boxed()
+                .collect(Collectors.toSet());
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        when(collection.toPrimitiveArray()).thenReturn(values);
+
+        var result = PrimitiveCollections.setOf(collection);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_intArray__comparedToSet__returnedSetIsEqual(int size) {
+        var expected = IntStream.range(0, size).boxed().collect(Collectors.toSet());
+
+        var result = PrimitiveCollections.setOf(IntStream.range(0, size)
+                .toArray());
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_intCollection__comparedToSet__returnedSetIsEqual(int size) {
+        var values = IntStream.range(0, size).toArray();
+        var expected = IntStream.range(0, size).boxed().collect(Collectors.toSet());
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        when(collection.toPrimitiveArray()).thenReturn(values);
+
+        var result = PrimitiveCollections.setOf(collection);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_longArray__comparedToSet__returnedSetIsEqual(int size) {
+        var expected = IntStream.range(0, size).asLongStream().boxed()
+                .collect(Collectors.toSet());
+
+        var result = PrimitiveCollections.setOf(IntStream.range(0, size)
+                .asLongStream().toArray());
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 0, 1, 2, 5, 10, 1000, 100_000 })
+    void setOf_longCollection__comparedToSet__returnedSetIsEqual(int size) {
+        var values = IntStream.range(0, size).asLongStream().toArray();
+        var expected = IntStream.range(0, size).asLongStream().boxed()
+                .collect(Collectors.toSet());
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        when(collection.toPrimitiveArray()).thenReturn(values);
+
+        var result = PrimitiveCollections.setOf(collection);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void toPrimitiveArray_OfDouble__emptyCollection__returnsEmptyArray() {
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyDoubleIterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).isEmpty();
+        verify(collection).size();
+        verify(collection).iterator();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfDouble__hasElements__returnsExpectedElements(int size) {
+        var values = IntStream.range(0, size).mapToDouble(i -> 0.5 + i).toArray();
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(DoubleStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfDouble__reportedSizeZeroButHasElements__returnsExpectedElements(int size) {
+        var values = IntStream.range(0, size).mapToDouble(i -> 0.5 + i).toArray();
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        when(collection.iterator()).thenReturn(DoubleStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfDouble__reportedSizeExceedsElements__returnsExpectedElements(int size) {
+        var values = IntStream.range(0, size).mapToDouble(i -> 0.5 + i).toArray();
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+        when(collection.size()).thenReturn(size + 1);
+        when(collection.iterator()).thenReturn(DoubleStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void toPrimitiveArray_OfInt__emptyCollection__returnsEmptyArray() {
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyIntIterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).isEmpty();
+        verify(collection).size();
+        verify(collection).iterator();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfInt__hasElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).toArray();
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(IntStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfInt__reportedSizeZeroButHasElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).toArray();
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        when(collection.iterator()).thenReturn(IntStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfInt__reportedSizeExceedsElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).toArray();
+        var collection = mock(PrimitiveCollection.OfInt.class);
+        when(collection.size()).thenReturn(size + 1);
+        when(collection.iterator()).thenReturn(IntStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void toPrimitiveArray_OfLong__emptyCollection__returnsEmptyArray() {
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        when(collection.iterator()).thenReturn(PrimitiveCollections.emptyLongIterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).isEmpty();
+        verify(collection).size();
+        verify(collection).iterator();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfLong__hasElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).asLongStream().toArray();
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(LongStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfLong__reportedSizeZeroButHasElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).asLongStream().toArray();
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        when(collection.iterator()).thenReturn(LongStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toPrimitiveArray_OfLong__reportedSizeExceedsElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).asLongStream().toArray();
+        var collection = mock(PrimitiveCollection.OfLong.class);
+        when(collection.size()).thenReturn(size + 1);
+        when(collection.iterator()).thenReturn(LongStream.of(values).iterator());
+
+        var result = PrimitiveCollections.toPrimitiveArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void toArray_Collection__emptyCollection__returnsEmptyArray() {
+        var collection = mock(Collection.class);
+        when(collection.iterator()).thenReturn(Collections.emptyIterator());
+
+        var result = PrimitiveCollections.toArray(collection);
+
+        assertThat(result).isEmpty();
+        verify(collection).size();
+        verify(collection).iterator();
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection__hasElements__returnsExpectedElements(int size) {
+        var values = Stream.generate(Object::new).limit(size).toArray();
+        var collection = mock(Collection.class);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection__reportedSizeZeroButHasElements__returnsExpectedElements(int size) {
+        var values = Stream.generate(Object::new).limit(size).toArray();
+        var collection = mock(Collection.class);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection__reportedSizeExceedsElements__returnsExpectedElements(int size) {
+        var values = Stream.generate(Object::new).limit(size).toArray();
+        var collection = mock(Collection.class);
+        when(collection.size()).thenReturn(size + 1);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection);
+
+        assertThat(result).hasSize(size).containsExactly(values);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void toArray_Collection_array__emptyCollectionAndArray__returnsProvidedArray() {
+        var collection = mock(Collection.class);
+        var arr = new Object[0];
+        when(collection.iterator()).thenReturn(Collections.emptyIterator());
+
+        var result = PrimitiveCollections.toArray(collection, arr);
+
+        assertThat(result).isSameAs(arr);
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void toArray_Collection_array__emptyCollectionButArrayHasElements__nullsFirstElement() {
+        var collection = mock(Collection.class);
+        var arr = Stream.generate(Object::new).limit(5).toArray();
+        when(collection.iterator()).thenReturn(Collections.emptyIterator());
+
+        var result = PrimitiveCollections.toArray(collection, arr);
+
+        assertThat(result).isSameAs(arr);
+        assertThat(arr[0]).isNull();
+        Arrays.stream(arr, 1, 5)
+                .forEach(o -> assertThat(o).isNotNull());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection_array__hasConvertibleElement__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).boxed().toArray();
+        var collection = mock(Collection.class);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection, new Integer[0]);
+
+        assertThat(result).hasSize(size).isInstanceOf(Integer[].class);
+        IntStream.range(0, size).forEach(i ->
+                assertThat(result[i]).isEqualTo(values[i]));
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection_array__arraySizeMatchesCollectionSize__returnsSameArray(int size) {
+        var values = IntStream.rangeClosed(1, size).boxed().toArray();
+        var collection = mock(Collection.class);
+        var arr = new Integer[size];
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection, arr);
+
+        assertThat(result).isSameAs(arr);
+        IntStream.range(0, size).forEach(i ->
+                assertThat(result[i]).isEqualTo(values[i]));
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection_array__arraySizeGreaterThanCollectionSize__marksEndWithNull(int size) {
+        var values = IntStream.rangeClosed(1, size).boxed().toArray();
+        var collection = mock(Collection.class);
+        var arr = Stream.generate(() -> -1).limit(size * 2L)
+                .toArray(Integer[]::new);
+        when(collection.size()).thenReturn(size);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection, arr);
+
+        assertThat(result).isSameAs(arr);
+        IntStream.range(0, size).forEach(i ->
+                assertThat(result[i]).isEqualTo(values[i]));
+        assertThat(result[size]).isNull();
+        IntStream.range(size + 1, result.length).forEach(i ->
+                assertThat(result[i]).isEqualTo(-1));
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_000 })
+    void toArray_Collection_array__reportedSizeZeroButHasElements__returnsExpectedElements(int size) {
+        var values = IntStream.rangeClosed(1, size).boxed().toArray();
+        var collection = mock(Collection.class);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection, new Integer[0]);
+
+        assertThat(result).hasSize(size).isInstanceOf(Integer[].class);
+        IntStream.range(0, size).forEach(i ->
+                assertThat(result[i]).isEqualTo(values[i]));
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = { 10, 100, 1000, 10_000, 100_00 })
+    void toArray_Collection_array__reportedSizeExceedsElements__returnedExpectedElements(int size) {
+        // Special case: when the initial array is insufficient for the reported size,
+        // but the iteration runs out early, we reallocate to the iteration size rather
+        // than continue with the larger reallocation.
+        var values = IntStream.rangeClosed(1, size).boxed().toArray();
+        var collection = mock(Collection.class);
+        when(collection.size()).thenReturn(size + 1);
+        when(collection.iterator()).thenReturn(Stream.of(values).iterator());
+
+        var result = PrimitiveCollections.toArray(collection, new Integer[0]);
+
+        assertThat(result).hasSize(size).isInstanceOf(Integer[].class);
+        IntStream.range(0, size).forEach(i ->
+                assertThat(result[i]).isEqualTo(values[i]));
+        verify(collection).size();
+        verify(collection).iterator();
+        verifyNoMoreInteractions(collection);
     }
 }
