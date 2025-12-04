@@ -901,6 +901,7 @@ public class PrimitiveCollections {
             Objects.requireNonNull(action);
             if (exhausted)
                 return false;
+            exhausted = true;
             action.accept(value);
             return true;
         }
@@ -921,6 +922,7 @@ public class PrimitiveCollections {
             Objects.requireNonNull(action);
             if (exhausted)
                 return false;
+            exhausted = true;
             action.accept(value);
             return true;
         }
@@ -1388,7 +1390,7 @@ public class PrimitiveCollections {
 
         @Override
         public boolean contains(Object o) {
-            return o instanceof Double d && value == d;
+            return o instanceof Integer i && value == i;
         }
 
         @Override
@@ -1669,11 +1671,6 @@ public class PrimitiveCollections {
         }
 
         @Override
-        public boolean contains(Object o) {
-            return o instanceof Double d && containsDouble(d);
-        }
-
-        @Override
         public boolean containsDouble(double d) {
             for (double v : arr)
                 if (v == d)
@@ -1766,12 +1763,25 @@ public class PrimitiveCollections {
         }
 
         static PrimitiveSet.OfInt fromCollection(PrimitiveCollection.OfInt collection) {
-            var arr = collection.toPrimitiveArray();
-            return switch (arr.length) {
+            // TODO: Validate collection class and avoid defensive copy
+            // for known safe implementations
+            var a = collection.toPrimitiveArray();
+            return switch (a.length) {
                 case 0 -> EmptyIntSet.INSTANCE;
-                case 1 -> new IntSingleton(arr[0]);
-                default -> new ArrayIntSet(validate(arr));
+                case 1 -> new IntSingleton(a[0]);
+                default -> {
+                    var arr = Arrays.copyOf(a, a.length);
+                    yield new ArrayIntSet(validate(arr));
+                }
             };
+        }
+
+        @Override
+        public boolean containsInt(int i) {
+            for (int v : arr)
+                if (v == i)
+                    return true;
+            return false;
         }
 
         @Override
@@ -1819,7 +1829,7 @@ public class PrimitiveCollections {
             if (a.length < arr.length)
                 a = newArray(a, arr.length);
             for (int i = 0; i < arr.length; i++)
-                a[i] = (U) Integer.valueOf(i);
+                a[i] = (U) Integer.valueOf(arr[i]);
             if (a.length > arr.length)
                 a[arr.length] = null;
             return a;
@@ -1859,17 +1869,17 @@ public class PrimitiveCollections {
         }
 
         static PrimitiveSet.OfLong fromCollection(PrimitiveCollection.OfLong collection) {
-            var arr = collection.toPrimitiveArray();
-            return switch (arr.length) {
+            // TODO: Validate collection class and avoid defensive copy
+            // for known safe implementations
+            var a = collection.toPrimitiveArray();
+            return switch (a.length) {
                 case 0 -> EmptyLongSet.INSTANCE;
-                case 1 -> new LongSingleton(arr[0]);
-                default -> new ArrayLongSet(validate(arr));
+                case 1 -> new LongSingleton(a[0]);
+                default -> {
+                    var arr = Arrays.copyOf(a, a.length);
+                    yield new ArrayLongSet(validate(arr));
+                }
             };
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return o instanceof Long l && containsLong(l);
         }
 
         @Override
