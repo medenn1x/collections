@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -21,6 +22,36 @@ import static org.mockito.Mockito.*;
 
 @SuppressWarnings("SuspiciousMethodCalls")
 class PrimitiveCollectionsTest {
+    @Test
+    void doubleSpliterator__noCharacteristicsSpecified__returnedSpliteratorIsSizedAndSubsized() {
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+
+        var spliterator = PrimitiveCollections.doubleSpliterator(collection, 0);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics)
+                .isEqualTo(Spliterator.SIZED | Spliterator.SUBSIZED);
+    }
+
+    @Test
+    void doubleSpliterator__concurrentSpecified__returnedSpliteratorIsNotSizedOrSubsized() {
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+
+        var spliterator = PrimitiveCollections.doubleSpliterator(collection, Spliterator.CONCURRENT);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics).isEqualTo(Spliterator.CONCURRENT);
+    }
+
+    @Test
+    void doubleSpliterator__always__returnedSpliteratorIsLateBinding() {
+        var collection = mock(PrimitiveCollection.OfDouble.class);
+
+        PrimitiveCollections.doubleSpliterator(collection, 0);
+
+        verifyNoMoreInteractions(collection);
+    }
+
     @Test
     void equals__setVsNonSet__returnsFalse() {
         var set = mock(PrimitiveSet.class);
@@ -554,6 +585,66 @@ class PrimitiveCollectionsTest {
         assertThat(result).isEqualTo(expected);
         verify(set).primitiveStream();
         verifyNoMoreInteractions(set);
+    }
+
+    @Test
+    void intSpliterator__noCharacteristicsSpecified__returnedSpliteratorIsSizedAndSubsized() {
+        var collection = mock(PrimitiveCollection.OfInt.class);
+
+        var spliterator = PrimitiveCollections.intSpliterator(collection, 0);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics)
+                .isEqualTo(Spliterator.SIZED | Spliterator.SUBSIZED);
+    }
+
+    @Test
+    void intSpliterator__concurrentSpecified__returnedSpliteratorIsNotSizedOrSubsized() {
+        var collection = mock(PrimitiveCollection.OfInt.class);
+
+        var spliterator = PrimitiveCollections.intSpliterator(collection, Spliterator.CONCURRENT);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics).isEqualTo(Spliterator.CONCURRENT);
+    }
+
+    @Test
+    void intSpliterator__always__returnedSpliteratorIsLateBinding() {
+        var collection = mock(PrimitiveCollection.OfInt.class);
+
+        PrimitiveCollections.intSpliterator(collection, 0);
+
+        verifyNoMoreInteractions(collection);
+    }
+
+    @Test
+    void longSpliterator__noCharacteristicsSpecified__returnedSpliteratorIsSizedAndSubsized() {
+        var collection = mock(PrimitiveCollection.OfLong.class);
+
+        var spliterator = PrimitiveCollections.longSpliterator(collection, 0);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics)
+                .isEqualTo(Spliterator.SIZED | Spliterator.SUBSIZED);
+    }
+
+    @Test
+    void longSpliterator__concurrentSpecified__returnedSpliteratorIsNotSizedOrSubsized() {
+        var collection = mock(PrimitiveCollection.OfLong.class);
+
+        var spliterator = PrimitiveCollections.longSpliterator(collection, Spliterator.CONCURRENT);
+        var characteristics = spliterator.characteristics();
+
+        assertThat(characteristics).isEqualTo(Spliterator.CONCURRENT);
+    }
+
+    @Test
+    void longSpliterator__always__returnedSpliteratorIsLateBinding() {
+        var collection = mock(PrimitiveCollection.OfLong.class);
+
+        PrimitiveCollections.longSpliterator(collection, 0);
+
+        verifyNoMoreInteractions(collection);
     }
 
     @ParameterizedTest
