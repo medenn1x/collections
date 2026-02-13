@@ -1,5 +1,6 @@
 package net.arinoru.util.impl;
 
+import net.arinoru.util.CollectionNotModifiableException;
 import net.arinoru.util.views.UnmodifiableView;
 
 import java.util.NoSuchElementException;
@@ -26,6 +27,6 @@ public abstract class EmptyPrimitiveIterator<T,T_CONS>
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 }

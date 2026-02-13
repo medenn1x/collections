@@ -42,7 +42,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-// Some of the content of this class is imported and adapter from OpenJDK11
+// Some of the content of this class is imported and adapted from OpenJDK11
 // java.util.AbstractCollection and java.util.Spliterators
 
 /**

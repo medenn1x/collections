@@ -1,5 +1,6 @@
 package net.arinoru.util.impl;
 
+import net.arinoru.util.CollectionNotModifiableException;
 import net.arinoru.util.PrimitiveCollection;
 
 import java.util.PrimitiveIterator;
@@ -15,21 +16,21 @@ public abstract class UnmodifiablePrimitiveCollection<T,T_ARR,T_CONS,T_PRED,
         implements PrimitiveCollection<T,T_ARR,T_CONS,T_PRED,T_ITER,T_SPLITR,T_STR,T_COLL> {
     @Override
     public boolean addAll(T_COLL collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean removeAll(T_COLL collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean removeIf(T_PRED filter) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean retainAll(T_COLL collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 }

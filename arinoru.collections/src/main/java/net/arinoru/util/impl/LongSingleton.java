@@ -14,20 +14,56 @@ import java.util.function.LongPredicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+/**
+ * <p>An internal implementation of an unmodifiable {@link LongSet} containing a
+ * single element.</p>
+ */
 public class LongSingleton extends PrimitiveSingleton<Long,long[],LongConsumer,
         LongPredicate,PrimitiveIterator.OfLong,Spliterator.OfLong,LongStream,
         LongCollection> implements LongSet {
     private final long value;
 
+    /**
+     * <p>Create a set containing only the specified long value.</p>
+     * @param value element contained within this set
+     */
     public LongSingleton(long value) {
         this.value = value;
     }
 
+    /**
+     * <p>Returns {@code true} if this set contains the specified element. More
+     * formally, returns {@code true} if and only if this set contains an element
+     * {@code e} such that {@code Objects.equals(o, e)}.</p>
+     * @implNote <p>This method returns {@code true} if {@code o} is a
+     * {@link Long} whose value matches the value of the sole element in this
+     * set.</p>
+     * @param o element whose presence in this set is to be tested
+     * @return {@code true} if this set contains the specified element
+     */
     @Override
     public boolean contains(Object o) {
         return o instanceof Long l && value == l;
     }
 
+    /**
+     * <p>Returns {@code true} if this set contains all of the elements of the
+     * specified collection. If the specified collection is also a set, this
+     * method returns {@code true} if it is a <em>subset</em> of this set.</p>
+     * @implNote <p>This method returns {@code true} if the size of the specified
+     * collection is {@code 0}; if the specified collection has a size of {@code 1},
+     * this method returns the result of calling the
+     * {@link Collection#contains(Object)} method with the value of this set's
+     * sole element (or {@link LongCollection#containsLong(long)} if the
+     * specified collection is a {@code LongCollection}). For any other
+     * collection size, this method returns {@code false}.</p>
+     * @param collection collection to be checked for containment in this set
+     * @return {@code true} if this set contains all of the elements of the
+     * specified collection
+     * @throws ClassCastException if the specified collection's {@code contains}
+     * method throws a ClassCastException when passed a {@link Long} value.
+     * @throws NullPointerException if the specified collection is null
+     */
     @Override
     public boolean containsAll(Collection<?> collection) {
         if (collection instanceof LongCollection longs)
@@ -39,6 +75,21 @@ public class LongSingleton extends PrimitiveSingleton<Long,long[],LongConsumer,
         };
     }
 
+    /**
+     * <p>Returns {@code true} if this set contains all of the elements of the
+     * specified collection. If the specified collection is also a set, this
+     * method returns {@code true} if it is a <em>subset</em> of this set.</p>
+     * @implNote <p>This method returns {@code true} if the size of the specified
+     * collection is {@code 0}; if the specified collection has a size of {@code 1},
+     * this method returns the result of calling the
+     * {@link LongCollection#containsLong(long)} method with the value of
+     * this set's sole element. For any other collection size, this method returns
+     * {@code false}.</p>
+     * @param collection collection to be checked for containment in this set
+     * @return {@code true} if this set contains all of the elements of the
+     * specified collection
+     * @throws NullPointerException if the specified collection is null
+     */
     @Override
     public boolean containsAll(LongCollection collection) {
         return switch (collection.size()) {
@@ -48,11 +99,41 @@ public class LongSingleton extends PrimitiveSingleton<Long,long[],LongConsumer,
         };
     }
 
+    /**
+     * <p>Returns {@code true} if this set contains the specified element.
+     * More formally, returns {@code true} if and only if this set contains an
+     * element {@code e} such that {@code element == e}.</p>
+     * @implNote <p>Returns true if the specified element is equal to the
+     * sole element in this set.</p>
+     * @param element element whose presence in this set is to be tested
+     * @return {@code true} if this set contains the specified element
+     */
     @Override
     public boolean containsLong(long element) {
         return value == element;
     }
 
+    /**
+     * <p>Compares the specified object with this set for equality. Returns
+     * {@code true} if the specified object is also a set, the two sets have the
+     * same size, and every member of the specified set is contained in this set
+     * (or equivalently, every member of this set is contained in the specified
+     * set). This definition ensures that the equals method works properly
+     * across different implementations of the set interface.</p>
+     * @implNote <p>This method returns true if one of the following conditions
+     * is met:</p>
+     * <ul><li>{@code o} is this set.</li>
+     * <li>{@code o} is a long set with size {@code 1} whose
+     * {@link LongSet#containsLong(long)} method returns true when passed
+     * this set's sole element.</li>
+     * <li>{@code o} is a set with size {@code 1} whose
+     * {@link Set#contains(Object)} method returns true when passed this set's
+     * sole element.</li></ul>
+     * <p>Each condition preceding the last is meant to allow a less expensive
+     * operation to determine equality.</p>
+     * @param o object to be compared for equality with this set
+     * @return {@code true} if the specified object is equal to this set
+     */
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -64,46 +145,125 @@ public class LongSingleton extends PrimitiveSingleton<Long,long[],LongConsumer,
         };
     }
 
+    /**
+     * <p>Performs the given action on this set's sole element. Exceptions
+     * thrown by the action are relayed to the caller.</p>
+     * @param action action to perform on the element of the set
+     * @throws NullPointerException if the specified action is null
+     */
     @Override
     public void forEach(Consumer<? super Long> action) {
         action.accept(value);
     }
 
+    /**
+     * <p>Performs the given action on this set's sole element. Exceptions
+     * thrown by the action are relayed to the caller.</p>
+     * @param action action to perform on the element of the set
+     * @throws NullPointerException if the specified action is null
+     */
     @Override
     public void forEach(LongConsumer action) {
         action.accept(value);
     }
 
+    /**
+     * <p>Returns the hash code value for this set. The hash code of a set is
+     * defined to be the sum of the hash codes of the elements in the set. This
+     * ensures that {@code s1.equals(s2)} implies that
+     * {@code s1.hashCode()==s2.hashCode()} for any two sets {@code s1} and
+     * {@code s2}, as required by the general contract of
+     * {@link Object#equals(Object)}.</p>
+     * @implNote <p>This method returns the result of calling
+     * {@link Long#hashCode(long)} on this set's sole element.</p>
+     * @return the hash code value for this set
+     */
     @Override
     public int hashCode() {
         return Long.hashCode(value);
     }
 
+    /**
+     * <p>Returns a primitive iterator over the elements in this set.</p>
+     * @implNote <p>This method relies on
+     * {@link Spliterators#iterator(Spliterator.OfLong)}.</p>
+     * @return a {@code PrimitiveIterator.OfLong} over the element in this set
+     * @see #spliterator()
+     */
     @Override
     public PrimitiveIterator.OfLong iterator() {
+        // TODO: Is it better to use LongStream.iterator instead?
         return Spliterators.iterator(spliterator());
     }
 
+    /**
+     * <p>Returns a sequential {@code LongStream} with this set as its source.</p>
+     * @implNote <p>This method simply obtains a {@code LongStream} over the
+     * sole element.</p>
+     * @return a sequential {@code LongStream} over the element in this set
+     * @see LongStream#of(long)
+     */
     @Override
     public LongStream primitiveStream() {
         return LongStream.of(value);
     }
 
+    /**
+     * <p>Creates a {@code Spliterator.OfLong} over the element in this set.</p>
+     * @implNote <p>This method returns a {@link SingletonLongSpliterator} with
+     * the set's sole element.</p>
+     * @return a {@code Spliterator.OfLong} over the element in this set
+     */
     @Override
     public Spliterator.OfLong spliterator() {
         return new SingletonLongSpliterator(value);
     }
 
+    /**
+     * <p>Returns a sequential {@code Stream} with this set as its source.</p>
+     * @implNote <p>this method creates a {@code Stream} over the set's sole
+     * element.</p>
+     * @return a sequential {@code Stream} over the element in this set
+     * @see Stream#of(Object)
+     */
     @Override
     public Stream<Long> stream() {
         return Stream.of(value);
     }
 
+    /**
+     * <p>Returns an array containing the element in this set.</p>
+     * @implNote <p>This implementation creates a new single-element array
+     * containing a boxed representation of this set's sole element.</p>
+     * @return an array containing the element in this set
+     */
     @Override
     public Object[] toArray() {
         return new Object[] { value };
     }
 
+    /**
+     * <p>Returns an array containing the element in this set; the
+     * runtime type of the returned array is that of the specified array. If
+     * the set fits in the specified array, it is returned therein. Otherwise,
+     * a new array is allocated with the runtime type of the specified array and
+     * the size of this set.</p>
+     * <p>If this set fits in the specified array with room to spare (i.e.
+     * the array has more elements than this set), the element in the array
+     * immediately following the end of the set is set to {@code null}.</p>
+     * @param a the array into which the elements of this array are to be
+     *          stored, if it is big enough; otherwise, a new array of the
+     *          same runtime type is allocated for this purpose.
+     * @return an array containing the element in this set
+     * @param <U> the component type of the array to contain the set
+     * @throws ArrayStoreException if the runtime type of the element in this
+     * set is not assignable to the runtime component type of the
+     * specified array
+     * @throws NullPointerException if the specified array is null
+     * @throws OutOfMemoryError if it is not possible to allocate a sufficiently
+     * large array to contain this set (i.e. if the size of the set
+     * exceeds the maximum capacity of a Java array)
+     */
     @Override
     @SuppressWarnings("unchecked")
     public <U> U[] toArray(U[] a) {
@@ -115,6 +275,15 @@ public class LongSingleton extends PrimitiveSingleton<Long,long[],LongConsumer,
         return a;
     }
 
+    /**
+     * <p>Returns an array containing the element in this set.</p>
+     * <p>The returned array will be "safe" in that no references to it are
+     * maintained by this set. The caller is thus free
+     * to modify the returned array.</p>
+     * @implNote <p>This implementation creates a new single-element array
+     * containing this set's sole element.</p>
+     * @return an array containing the element in this set
+     */
     @Override
     public long[] toPrimitiveArray() {
         return new long[] { value };

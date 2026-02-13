@@ -1,5 +1,7 @@
 package net.arinoru.util;
 
+import net.arinoru.annotation.Unstable;
+
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.function.LongConsumer;
@@ -17,6 +19,7 @@ import java.util.stream.LongStream;
  * directly extend {@code AbstractPrimitiveSet} given the number of generic
  * type parameters required.</p>
  */
+@Unstable
 public abstract class AbstractLongSet extends AbstractPrimitiveSet<Long,long[],
         LongConsumer,LongPredicate,PrimitiveIterator.OfLong,Spliterator.OfLong,
         LongStream,LongCollection> implements LongSet {

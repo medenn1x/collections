@@ -1,5 +1,6 @@
 package net.arinoru.util.impl;
 
+import net.arinoru.util.CollectionNotModifiableException;
 import net.arinoru.util.views.UnmodifiableView;
 
 import java.util.Collection;
@@ -9,36 +10,36 @@ public abstract class UnmodifiableCollection<E>
         implements Collection<E>, UnmodifiableView {
     @Override
     public boolean add(E e) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean addAll(Collection<? extends E> collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean remove(Object o) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean removeAll(Collection<?> collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean removeIf(Predicate<? super E> filter) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 
     @Override
     public boolean retainAll(Collection<?> collection) {
-        throw new UnsupportedOperationException();
+        throw new CollectionNotModifiableException();
     }
 }

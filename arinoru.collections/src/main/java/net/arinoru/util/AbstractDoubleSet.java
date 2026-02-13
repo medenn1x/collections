@@ -1,5 +1,7 @@
 package net.arinoru.util;
 
+import net.arinoru.annotation.Unstable;
+
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.function.DoubleConsumer;
@@ -17,6 +19,7 @@ import java.util.stream.DoubleStream;
  * directly extend {@code AbstractPrimitiveSet} given the number of generic
  * type parameters required.</p>
  */
+@Unstable
 public abstract class AbstractDoubleSet extends AbstractPrimitiveSet<Double,double[],
         DoubleConsumer,DoublePredicate,PrimitiveIterator.OfDouble,Spliterator.OfDouble,
         DoubleStream,DoubleCollection> implements DoubleSet {

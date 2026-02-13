@@ -1,5 +1,7 @@
 package net.arinoru.util;
 
+import net.arinoru.annotation.Unstable;
+
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
@@ -17,6 +19,7 @@ import java.util.stream.IntStream;
  * directly extend {@code AbstractPrimitiveSet} given the number of generic
  * type parameters required.</p>
  */
+@Unstable
 public abstract class AbstractIntSet extends AbstractPrimitiveSet<Integer,int[],
         IntConsumer,IntPredicate,PrimitiveIterator.OfInt,Spliterator.OfInt,
         IntStream,IntCollection> implements IntSet {
